@@ -1,0 +1,156 @@
+% figures/tikz_styles.tex
+% Shared visual grammar for all Aegis-Agency figures.
+% Colour convention (also encoded by shape/pattern for grayscale readability):
+%   blue    = honest / normal system components
+%   red     = adversarial / attacker / Byzantine components
+%   green   = defence / robustness / isolation
+%   purple  = theory / mathematical objects
+%   gray    = infrastructure / background
+\usetikzlibrary{
+  arrows.meta,
+  positioning,
+  calc,
+  fit,
+  backgrounds,
+  shapes.geometric,
+  shapes.symbols,
+  shapes.misc,
+  decorations.pathreplacing,
+  patterns,
+  matrix,
+  shadows.blur
+}
+
+% ---- Palette --------------------------------------------------------
+\definecolor{aegisBlue}{RGB}{31,90,158}
+\definecolor{aegisBlueBg}{RGB}{223,235,248}
+\definecolor{aegisRed}{RGB}{178,34,34}
+\definecolor{aegisRedBg}{RGB}{250,226,226}
+\definecolor{aegisGreen}{RGB}{27,120,72}
+\definecolor{aegisGreenBg}{RGB}{223,242,231}
+\definecolor{aegisPurple}{RGB}{104,52,140}
+\definecolor{aegisPurpleBg}{RGB}{235,226,246}
+\definecolor{aegisGray}{RGB}{95,99,104}
+\definecolor{aegisGrayBg}{RGB}{236,238,240}
+\definecolor{aegisAmber}{RGB}{176,120,10}
+\definecolor{aegisAmberBg}{RGB}{252,242,214}
+
+% ---- Generic node styles -------------------------------------------
+\tikzset{
+  aegisfont/.style={font=\sffamily\small},
+  aegissmall/.style={font=\sffamily\scriptsize},
+  % honest / normal component
+  honest/.style={
+    draw=aegisBlue, line width=0.7pt, fill=aegisBlueBg,
+    rounded corners=3pt, align=center, aegisfont,
+    minimum width=22mm, minimum height=10mm, inner sep=3pt},
+  % adversarial component
+  adv/.style={
+    draw=aegisRed, line width=0.9pt, fill=aegisRedBg,
+    rounded corners=3pt, align=center, aegisfont,
+    minimum width=22mm, minimum height=10mm, inner sep=3pt},
+  % Byzantine judge (adversarial, dashed border to add shape cue)
+  byz/.style={
+    draw=aegisRed, line width=0.9pt, fill=aegisRedBg, dashed,
+    rounded corners=3pt, align=center, aegisfont,
+    minimum width=22mm, minimum height=10mm, inner sep=3pt},
+  % defence / robustness component
+  defense/.style={
+    draw=aegisGreen, line width=0.9pt, fill=aegisGreenBg,
+    rounded corners=3pt, align=center, aegisfont,
+    minimum width=24mm, minimum height=10mm, inner sep=3pt},
+  % theory / math object
+  theory/.style={
+    draw=aegisPurple, line width=0.7pt, fill=aegisPurpleBg,
+    rounded corners=1pt, align=center, aegisfont,
+    minimum width=24mm, minimum height=9mm, inner sep=3pt},
+  % infrastructure / background block
+  infra/.style={
+    draw=aegisGray, line width=0.6pt, fill=aegisGrayBg,
+    rounded corners=2pt, align=center, aegissmall,
+    minimum width=20mm, minimum height=8mm, inner sep=2pt},
+  % data-channel content (untrusted payload)
+  payload/.style={
+    draw=aegisAmber, line width=0.8pt, fill=aegisAmberBg,
+    rounded corners=1pt, align=center, aegissmall,
+    minimum width=22mm, minimum height=9mm, inner sep=2pt},
+  % grouping box (transparent fit)
+  group/.style={
+    draw=aegisGray, line width=0.6pt, dash pattern=on 2pt off 1.5pt,
+    rounded corners=4pt, inner sep=5pt, fill=aegisGray!5},
+  grouplabel/.style={aegissmall, text=aegisGray},
+  % ---- Arrow / flow styles (each lane distinct in color AND dash) ----
+  dataflow/.style={-{Stealth[length=2.4mm]}, aegisBlue, line width=0.8pt},
+  ctrlflow/.style={-{Stealth[length=2.4mm]}, aegisGray, line width=0.7pt,
+    dash pattern=on 3pt off 2pt},
+  advflow/.style={-{Stealth[length=2.4mm]}, aegisRed, line width=0.9pt,
+    dash pattern=on 2pt off 1.4pt},
+  defflow/.style={-{Stealth[length=2.4mm]}, aegisGreen, line width=0.9pt},
+  theoryflow/.style={-{Stealth[length=2.2mm]}, aegisPurple, line width=0.7pt,
+    dash pattern=on 1pt off 1pt},
+  % arrow label carried on a white chip so no line crosses text
+  elabel/.style={aegissmall, fill=white, inner sep=1.3pt, rounded corners=1pt},
+}
+
+% ---- Lightweight pure-TikZ icons (no external images) ---------------
+% Server / aggregation substrate
+\newcommand{\iconserver}[1][aegisGray]{%
+  \begin{tikzpicture}[scale=0.16,baseline=-0.5ex]
+    \foreach \y in {0,1.4,2.8}{
+      \draw[fill=#1!18,draw=#1,line width=1pt,rounded corners=1pt]
+        (0,\y) rectangle (4,\y+1);
+      \fill[#1] (0.5,\y+0.5) circle (0.16);
+      \draw[#1,line width=1pt] (1.2,\y+0.5) -- (3.4,\y+0.5);}
+  \end{tikzpicture}}
+% Judge / gavel
+\newcommand{\iconjudge}[1][aegisBlue]{%
+  \begin{tikzpicture}[scale=0.16,baseline=-0.5ex]
+    \draw[#1,line width=1.4pt,rotate around={35:(1.6,1.6)}]
+      (0.4,1.2) rectangle (2.8,2.0);
+    \draw[#1,line width=1.4pt] (2.2,0.1)--(3.6,1.5);
+    \draw[#1,line width=1.4pt] (0.2,2.9)--(2.4,2.9);
+  \end{tikzpicture}}
+% Shield (defence)
+\newcommand{\iconshield}[1][aegisGreen]{%
+  \begin{tikzpicture}[scale=0.16,baseline=-0.5ex]
+    \draw[#1,line width=1.2pt,fill=#1!14]
+      (1.6,3.1) -- (3.0,2.4) -- (3.0,0.9)
+      .. controls (3.0,0.1) and (2.0,-0.4) .. (1.6,-0.6)
+      .. controls (1.2,-0.4) and (0.2,0.1) .. (0.2,0.9)
+      -- (0.2,2.4) -- cycle;
+    \draw[#1,line width=1.1pt] (1.0,1.3)--(1.5,0.7)--(2.4,1.9);
+  \end{tikzpicture}}
+% Lock / isolation
+\newcommand{\iconlock}[1][aegisGreen]{%
+  \begin{tikzpicture}[scale=0.16,baseline=-0.5ex]
+    \draw[#1,line width=1.2pt,fill=#1!14] (0.3,0) rectangle (3.1,2.1);
+    \draw[#1,line width=1.2pt] (0.9,2.1) .. controls (0.9,3.4) and (2.5,3.4) .. (2.5,2.1);
+    \fill[#1] (1.7,1.05) circle (0.28);
+    \draw[#1,line width=1.1pt] (1.7,1.05)--(1.7,0.4);
+  \end{tikzpicture}}
+% Attacker / skull-ish adversary
+\newcommand{\iconattacker}[1][aegisRed]{%
+  \begin{tikzpicture}[scale=0.16,baseline=-0.5ex]
+    \draw[#1,line width=1.2pt,fill=#1!14] (1.6,1.7) circle (1.5);
+    \fill[#1] (1.0,1.9) circle (0.32);
+    \fill[#1] (2.2,1.9) circle (0.32);
+    \draw[#1,line width=1.1pt] (0.8,0.7)--(2.4,0.7);
+    \draw[#1,line width=1.0pt] (0.1,1.7)--(-0.6,1.7);
+    \draw[#1,line width=1.0pt] (3.1,1.7)--(3.8,1.7);
+  \end{tikzpicture}}
+% Document / payload
+\newcommand{\icondoc}[1][aegisAmber]{%
+  \begin{tikzpicture}[scale=0.16,baseline=-0.5ex]
+    \draw[#1,line width=1.1pt,fill=#1!12]
+      (0.2,0) rectangle (2.8,3.4);
+    \foreach \y in {0.7,1.4,2.1,2.8}{\draw[#1,line width=0.8pt] (0.7,\y)--(2.3,\y);}
+  \end{tikzpicture}}
+% Model / neural net
+\newcommand{\iconmodel}[1][aegisBlue]{%
+  \begin{tikzpicture}[scale=0.15,baseline=-0.5ex]
+    \foreach \y in {0,1.5,3}{\fill[#1] (0,\y) circle (0.28);}
+    \foreach \y in {0.75,2.25}{\fill[#1] (2,\y) circle (0.28);}
+    \fill[#1] (4,1.5) circle (0.28);
+    \foreach \a in {0,1.5,3}{\foreach \b in {0.75,2.25}{\draw[#1,line width=0.5pt] (0,\a)--(2,\b);}}
+    \foreach \b in {0.75,2.25}{\draw[#1,line width=0.5pt] (2,\b)--(4,1.5);}
+  \end{tikzpicture}}

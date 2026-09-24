@@ -1,0 +1,94 @@
+\section{Related Work}
+\label{sec:related}
+
+We organise prior work into five strands and, for each, state precisely where \Aegis
+departs from it. \Cref{fig:threat} summarises how the threats we consider map onto the
+pipeline.
+
+\subsection{Multi-agent LLM defenses}
+AutoDefense~\cite{zeng2024autodefense} is the closest system: a role-specialised
+committee (Input, Intention Analyzer, Original-Prompt Analyzer, Judge, optional
+Llama-Guard, Output) coordinated to filter harmful responses, reducing jailbreak attack
+success rate on a three-agent configuration from $55.74\%$ to $7.95\%$. Its aggregation
+is a single Coordinator, its agents are assumed honest, its judges read the untrusted
+response directly, and its evaluation is static. Runtime guardrail frameworks such as
+NeMo Guardrails~\cite{rebedea2023nemo} and LlamaFirewall~\cite{chennabasappa2025llamafirewall}
+compose several checks around an application, and moderation
+classifiers~\cite{inan2023llamaguard,markov2023holistic,zeng2024shieldgemma} provide the
+individual judges; SmoothLLM~\cite{robey2023smoothllm} aggregates over perturbed copies
+of a \emph{single} model's inputs. None of these treats the defender as a set of agents
+that may include a compromised or colluding minority, and none analyses aggregation
+under Byzantine faults. \Aegis keeps the committee structure but replaces the trusted
+coordinator with a Byzantine-robust rule and closes the self-inspection surface.
+
+\subsection{Single-model injection and jailbreak hardening}
+SecAlign~\cite{chen2025secalign} hardens one model against prompt injection by
+preference optimisation~\cite{rafailov2023dpo}; StruQ~\cite{chen2024struq} separates
+instructions from data into structured queries and fine-tunes the model to ignore
+instructions in the data channel; spotlighting~\cite{hines2024spotlighting} marks
+untrusted spans; the instruction hierarchy~\cite{wallace2024instruction} trains a model
+to prioritise privileged instructions. Certified erase-and-check~\cite{kumar2023certifying}
+and baseline filters~\cite{jain2023baseline} give single-model guarantees against
+adversarial prompts. These techniques are \emph{components} of \Aegis (each judge is
+hardened, the payload is isolated in StruQ/spotlighting style), and a single hardened
+model is one of our baselines; they do not, and cannot, address insider compromise of a
+committee or subversion of an aggregator, which have no single-model analogue.
+
+\subsection{LLM-as-a-judge and its failure modes}
+LLM-as-a-judge is now a standard evaluation and adjudication
+primitive~\cite{zheng2023judging}, but it inherits biases—position, verbosity,
+self-enhancement~\cite{wang2023notfair}—and can be actively attacked:
+JudgeDeceiver~\cite{shi2024judgeinjection} uses optimisation-based prompt injection to
+force an LLM judge to select an attacker-chosen answer. This is exactly the
+second-order injection surface a defense pipeline opens when it feeds untrusted content
+to its judges. \Aegis responds with payload isolation (to remove the lever) and robust
+aggregation (to bound the effect of the judges an attacker does compromise), and it
+requires and measures backbone diversity because correlated judge bias is a shared,
+not independent, failure~\cite{kuncheva2003diversity}.
+
+\subsection{Security of multi-agent LLM systems}
+A growing literature shows that LLM multi-agent systems are attackable through their
+interactions rather than any single model. Prompt Infection~\cite{lee2024promptinfection}
+demonstrates self-replicating injections that propagate agent-to-agent;
+PsySafe~\cite{zhang2024psysafe} and Evil Geniuses~\cite{tian2023evilgeniuses} show that
+individual agents can be turned to subvert collective behaviour; Flooding of manipulated
+knowledge~\cite{ju2024flooding} and CORBA~\cite{zhou2025corba} show integrity and
+availability attacks that spread through a community; Agent-in-the-Middle
+attacks~\cite{he2025redteaming} manipulate inter-agent communication; and Agent Security
+Bench~\cite{zhang2024asb} formalises attacks and defenses across agent operation stages.
+This body of work establishes that insider and communication threats are real for
+task-performing agent teams. \Aegis is complementary: it studies these threats for a
+\emph{defensive} team whose explicit job is adjudication, where the natural
+countermeasure is Byzantine-robust aggregation of verdicts rather than of task outputs.
+
+\subsection{Byzantine-robust aggregation and robust statistics}
+Robust aggregation originates in distributed and federated learning under a
+\emph{trusted} server~\cite{mcmahan2017fedavg}. Krum~\cite{blanchard2017krum} selects the worker gradient closest
+to its neighbours and tolerates $f$ Byzantine workers when $2f{+}2<n$; coordinate-wise
+median and trimmed mean achieve order-optimal rates under $f<n/2$~\cite{yin2018byzantine};
+geometric-median aggregation~\cite{chen2017byzantine,pillutla2022rfa} and
+Bulyan~\cite{mhamdi2018bulyan} extend the family, the latter warning that
+single-aggregator defenses can fail in high dimension. The robustness of these estimators
+rests on classical results—breakdown points of multivariate location
+estimators~\cite{lopuhaa1991breakdown}, geometric-median concentration~\cite{minsker2015geometric},
+and high-dimensional robust estimation~\cite{diakonikolas2016robust,lai2016agnostic,diakonikolas2019recent}.
+Crucially, adaptive attacks break many of these rules: local model
+poisoning~\cite{fang2020poisoning}, ``a little is enough''~\cite{baruch2019little}, and
+inner-product manipulation~\cite{xie2019fall} all evade Krum or median under realistic
+adversaries, and federated backdoors~\cite{bagdasaryan2020backdoor} persist through
+averaging. We transplant this machinery from gradients-under-a-trusted-master to
+\emph{verdicts-under-an-untrusted-committee}, which changes both the object (a
+low-dimensional semantic verdict rather than a high-dimensional gradient) and the
+adversary (an agent that can also inject the content being judged). The classical
+Byzantine agreement bounds~\cite{lamport1982byzantine,castro1999pbft} frame the committee
+model but are not our mechanism: our aggregation substrate is trusted and non-interactive,
+so we borrow robust \emph{estimation}, not consensus protocols. Because adaptive attacks
+are known to defeat these rules, our evaluation is adaptive by construction
+(\cref{sec:experiments}).
+
+\paragraph{Positioning.}
+To the best of our knowledge, within the verified literature, \Aegis is the first defense
+that (i)~models a compromised or colluding minority \emph{inside} an LLM defense pipeline,
+(ii)~replaces its trusted coordinator with Byzantine-robust aggregation over a semantic
+verdict space, and (iii)~closes the second-order injection surface the pipeline creates.
+We claim graceful degradation under these threats, not provable end-to-end security.

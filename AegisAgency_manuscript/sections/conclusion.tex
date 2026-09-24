@@ -1,0 +1,30 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+Multi-agent pipelines that filter LLM outputs have made the content they inspect safer
+while leaving themselves unexamined. We argued that such a pipeline is a multi-agent system
+whose own security matters, and we studied two threats with no single-model analogue:
+compromised or colluding internal defenders, and second-order prompt injection carried by
+the content the judges read. \Aegis answers both by replacing the single trusted
+coordinator with Byzantine-robust aggregation of judge verdicts, isolating the untrusted
+payload from the judges' instruction channel, hardening each judge, and generalising the
+verdict target from jailbreak to task-integrity. We proved, under stated
+honest-concentration and margin assumptions, that robust aggregation prevents a Byzantine
+minority ($2f{+}2<n$ for selection, $f<n/2$ for median rules) from flipping the aggregate
+decision in either direction; we characterised how the guarantee degrades once honest
+failures correlate, turning backbone diversity from a tuning choice into a requirement; and
+we quantified the linear token/latency cost the committee incurs. We were explicit
+throughout that a lower attack success rate under compromise is evidence of graceful
+degradation, not a proof of security, and that the empirical figures here are placeholders
+fixing a falsifiable protocol.
+
+Two directions follow directly. First, executing the adaptive evaluation of
+\cref{sec:experiments}—especially the homogeneous-vs-diverse correlated-failure test and the
+security-versus-cost frontier—will tell us whether the preconditions of \cref{thm:integrity}
+hold for real hardened LLM judges, which is the crux of whether the approach is practically
+meaningful at small $n$. Second, tightening honest concentration without reopening the
+inter-agent communication surface—for instance through structured, non-adversarial
+consensus among judges—could relax the margin condition and extend tolerance, and is a
+question the star-topology architecture is positioned to study. We hope the framing of the
+defense pipeline as a first-class attack surface, and the insistence on stating exactly
+where robustness stops, are useful beyond the specific architecture proposed here.

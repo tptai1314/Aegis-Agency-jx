@@ -1,0 +1,433 @@
+\begin{thebibliography}{10}
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{\texttt{#1}}\fi
+\expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+\expandafter\ifx\csname href\endcsname\relax
+  \def\href#1#2{#2} \def\path#1{#1}\fi
+
+\bibitem{zou2023universal}
+A.~Zou, Z.~Wang, N.~Carlini, M.~Nasr, J.~Z. Kolter, M.~Fredrikson, Universal
+  and transferable adversarial attacks on aligned language models, arXiv
+  preprint arXiv:2307.15043 (2023).
+\newblock \href {http://arxiv.org/abs/2307.15043} {\path{arXiv:2307.15043}}.
+
+\bibitem{shen2023dan}
+X.~Shen, Z.~Chen, M.~Backes, Y.~Shen, Y.~Zhang, {"Do Anything Now"}:
+  Characterizing and evaluating in-the-wild jailbreak prompts on large language
+  models, in: Proceedings of the 2024 ACM SIGSAC Conference on Computer and
+  Communications Security (CCS), 2024.
+\newblock \href {http://arxiv.org/abs/2308.03825} {\path{arXiv:2308.03825}}.
+
+\bibitem{chao2023pair}
+P.~Chao, A.~Robey, E.~Dobriban, H.~Hassani, G.~J. Pappas, E.~Wong, Jailbreaking
+  black box large language models in twenty queries, arXiv preprint
+  arXiv:2310.08419 (2023).
+\newblock \href {http://arxiv.org/abs/2310.08419} {\path{arXiv:2310.08419}}.
+
+\bibitem{yi2024jailbreaksurvey}
+S.~Yi, Y.~Liu, Z.~Sun, T.~Cong, X.~He, J.~Song, K.~Xu, Q.~Li, Jailbreak attacks
+  and defenses against large language models: A survey, arXiv preprint
+  arXiv:2407.04295 (2024).
+\newblock \href {http://arxiv.org/abs/2407.04295} {\path{arXiv:2407.04295}}.
+
+\bibitem{greshake2023injection}
+K.~Greshake, S.~Abdelnabi, S.~Mishra, C.~Endres, T.~Holz, M.~Fritz, Not what
+  you've signed up for: Compromising real-world {LLM}-integrated applications
+  with indirect prompt injection, in: Proceedings of the 16th ACM Workshop on
+  Artificial Intelligence and Security (AISec), 2023.
+\newblock \href {http://arxiv.org/abs/2302.12173} {\path{arXiv:2302.12173}}.
+
+\bibitem{liu2024formalizing}
+Y.~Liu, Y.~Jia, R.~Geng, J.~Jia, N.~Z. Gong, Formalizing and benchmarking
+  prompt injection attacks and defenses, in: 33rd USENIX Security Symposium
+  (USENIX Security 24), 2024.
+\newblock \href {http://arxiv.org/abs/2310.12815} {\path{arXiv:2310.12815}}.
+
+\bibitem{wallace2024instruction}
+E.~Wallace, K.~Xiao, R.~Leike, L.~Weng, J.~Heidecke, A.~Beutel, The instruction
+  hierarchy: Training {LLMs} to prioritize privileged instructions, arXiv
+  preprint arXiv:2404.13208 (2024).
+\newblock \href {http://arxiv.org/abs/2404.13208} {\path{arXiv:2404.13208}}.
+
+\bibitem{chen2025secalign}
+S.~Chen, A.~Zharmagambetov, S.~Mahloujifar, K.~Chaudhuri, D.~Wagner, C.~Guo,
+  {SecAlign}: Defending against prompt injection with preference optimization,
+  in: Proceedings of the 2025 ACM SIGSAC Conference on Computer and
+  Communications Security (CCS), 2025.
+\newblock \href {http://arxiv.org/abs/2410.05451} {\path{arXiv:2410.05451}}.
+
+\bibitem{chen2024struq}
+S.~Chen, J.~Piet, C.~Sitawarin, D.~Wagner, {StruQ}: Defending against prompt
+  injection with structured queries, in: 34th USENIX Security Symposium (USENIX
+  Security 25), 2025.
+\newblock \href {http://arxiv.org/abs/2402.06363} {\path{arXiv:2402.06363}}.
+
+\bibitem{inan2023llamaguard}
+H.~Inan, K.~Upasani, J.~Chi, R.~Rungta, K.~Iyer, Y.~Mao, M.~Tontchev, Q.~Hu,
+  B.~Fuller, D.~Testuggine, M.~Khabsa, {Llama Guard}: {LLM}-based input-output
+  safeguard for human-{AI} conversations, arXiv preprint arXiv:2312.06674
+  (2023).
+\newblock \href {http://arxiv.org/abs/2312.06674} {\path{arXiv:2312.06674}}.
+
+\bibitem{rebedea2023nemo}
+T.~Rebedea, R.~Dinu, M.~Sreedhar, C.~Parisien, J.~Cohen, {NeMo Guardrails}: A
+  toolkit for controllable and safe {LLM} applications with programmable rails,
+  in: Proceedings of the 2023 Conference on Empirical Methods in Natural
+  Language Processing (EMNLP): System Demonstrations, 2023.
+\newblock \href {http://arxiv.org/abs/2310.10501} {\path{arXiv:2310.10501}}.
+
+\bibitem{markov2023holistic}
+T.~Markov, C.~Zhang, S.~Agarwal, T.~Eloundou, T.~Lee, S.~Adler, A.~Jiang,
+  L.~Weng, A holistic approach to undesired content detection in the real
+  world, in: Proceedings of the AAAI Conference on Artificial Intelligence,
+  2023.
+\newblock \href {http://arxiv.org/abs/2208.03274} {\path{arXiv:2208.03274}}.
+
+\bibitem{zeng2024shieldgemma}
+W.~Zeng, Y.~Liu, R.~Mullins, L.~Peran, J.~Fernandez, H.~Harkous, K.~Narasimhan,
+  D.~Proud, P.~Kumar, B.~Radharapu, O.~Sturman, O.~Wahltinez, {ShieldGemma}:
+  Generative {AI} content moderation based on {Gemma}, arXiv preprint
+  arXiv:2407.21772 (2024).
+\newblock \href {http://arxiv.org/abs/2407.21772} {\path{arXiv:2407.21772}}.
+
+\bibitem{zeng2024autodefense}
+Y.~Zeng, Y.~Wu, X.~Zhang, H.~Wang, Q.~Wu, {AutoDefense}: Multi-agent {LLM}
+  defense against jailbreak attacks, arXiv preprint arXiv:2403.04783 (2024).
+\newblock \href {http://arxiv.org/abs/2403.04783} {\path{arXiv:2403.04783}}.
+
+\bibitem{wu2023autogen}
+Q.~Wu, G.~Bansal, J.~Zhang, Y.~Wu, B.~Li, E.~Zhu, L.~Jiang, X.~Zhang, S.~Zhang,
+  J.~Liu, A.~H. Awadallah, R.~W. White, D.~Burger, C.~Wang, {AutoGen}: Enabling
+  next-gen {LLM} applications via multi-agent conversation, arXiv preprint
+  arXiv:2308.08155 (2023).
+\newblock \href {http://arxiv.org/abs/2308.08155} {\path{arXiv:2308.08155}}.
+
+\bibitem{hong2023metagpt}
+S.~Hong, M.~Zhuge, J.~Chen, X.~Zheng, Y.~Cheng, C.~Zhang, J.~Wang, Z.~Wang,
+  S.~K.~S. Yau, Z.~Lin, L.~Zhou, C.~Ran, L.~Xiao, C.~Wu, J.~Schmidhuber,
+  {MetaGPT}: Meta programming for a multi-agent collaborative framework, in:
+  International Conference on Learning Representations (ICLR), 2024.
+\newblock \href {http://arxiv.org/abs/2308.00352} {\path{arXiv:2308.00352}}.
+
+\bibitem{li2023camel}
+G.~Li, H.~A. A.~K. Hammoud, H.~Itani, D.~Khizbullin, B.~Ghanem, {CAMEL}:
+  Communicative agents for ``mind'' exploration of large language model
+  society, in: Advances in Neural Information Processing Systems (NeurIPS) 36,
+  2023.
+\newblock \href {http://arxiv.org/abs/2303.17760} {\path{arXiv:2303.17760}}.
+
+\bibitem{qian2023chatdev}
+C.~Qian, W.~Liu, H.~Liu, N.~Chen, Y.~Dang, J.~Li, C.~Yang, W.~Chen, Y.~Su,
+  X.~Cong, J.~Xu, D.~Li, Z.~Liu, M.~Sun, {ChatDev}: Communicative agents for
+  software development, in: Proceedings of the 62nd Annual Meeting of the
+  Association for Computational Linguistics (ACL), 2024.
+\newblock \href {http://arxiv.org/abs/2307.07924} {\path{arXiv:2307.07924}}.
+
+\bibitem{du2023debate}
+Y.~Du, S.~Li, A.~Torralba, J.~B. Tenenbaum, I.~Mordatch, Improving factuality
+  and reasoning in language models through multiagent debate, in: Proceedings
+  of the 41st International Conference on Machine Learning (ICML), 2024.
+\newblock \href {http://arxiv.org/abs/2305.14325} {\path{arXiv:2305.14325}}.
+
+\bibitem{xi2023agentsurvey}
+Z.~Xi, W.~Chen, X.~Guo, W.~He, Y.~Ding, B.~Hong, M.~Zhang, J.~Wang, S.~Jin,
+  E.~Zhou, et~al., The rise and potential of large language model based agents:
+  A survey, arXiv preprint arXiv:2309.07864 (2023).
+\newblock \href {http://arxiv.org/abs/2309.07864} {\path{arXiv:2309.07864}}.
+
+\bibitem{lee2024promptinfection}
+D.~Lee, M.~Tiwari, Prompt infection: {LLM}-to-{LLM} prompt injection within
+  multi-agent systems, arXiv preprint arXiv:2410.07283 (2024).
+\newblock \href {http://arxiv.org/abs/2410.07283} {\path{arXiv:2410.07283}}.
+
+\bibitem{tian2023evilgeniuses}
+Y.~Tian, X.~Yang, J.~Zhang, Y.~Dong, H.~Su, Evil geniuses: Delving into the
+  safety of {LLM}-based agents, arXiv preprint arXiv:2311.11855 (2023).
+\newblock \href {http://arxiv.org/abs/2311.11855} {\path{arXiv:2311.11855}}.
+
+\bibitem{ju2024flooding}
+T.~Ju, Y.~Wang, X.~Ma, P.~Cheng, H.~Zhao, Y.~Wang, L.~Liu, J.~Xie, Z.~Zhang,
+  G.~Liu, Flooding spread of manipulated knowledge in {LLM}-based multi-agent
+  communities, arXiv preprint arXiv:2407.07791 (2024).
+\newblock \href {http://arxiv.org/abs/2407.07791} {\path{arXiv:2407.07791}}.
+
+\bibitem{he2025redteaming}
+P.~He, Y.~Lin, S.~Dong, H.~Xu, Y.~Xing, H.~Liu, Red-teaming {LLM} multi-agent
+  systems via communication attacks, in: Findings of the Association for
+  Computational Linguistics (ACL Findings), 2025.
+\newblock \href {http://arxiv.org/abs/2502.14847} {\path{arXiv:2502.14847}}.
+
+\bibitem{zhang2024psysafe}
+Z.~Zhang, Y.~Zhang, L.~Li, H.~Gao, L.~Wang, H.~Lu, F.~Zhao, Y.~Qiao, J.~Shao,
+  {PsySafe}: A comprehensive framework for psychological-based attack, defense,
+  and evaluation of multi-agent system safety, in: Proceedings of the 62nd
+  Annual Meeting of the Association for Computational Linguistics (ACL), 2024.
+\newblock \href {http://arxiv.org/abs/2401.11880} {\path{arXiv:2401.11880}}.
+
+\bibitem{zhang2024asb}
+H.~Zhang, J.~Huang, K.~Mei, Y.~Yao, Z.~Wang, C.~Zhan, H.~Wang, Y.~Zhang, Agent
+  security bench ({ASB}): Formalizing and benchmarking attacks and defenses in
+  {LLM}-based agents, in: International Conference on Learning Representations
+  (ICLR), 2025.
+\newblock \href {http://arxiv.org/abs/2410.02644} {\path{arXiv:2410.02644}}.
+
+\bibitem{shi2024judgeinjection}
+J.~Shi, Z.~Yuan, Y.~Liu, Y.~Huang, P.~Zhou, L.~Sun, N.~Z. Gong,
+  Optimization-based prompt injection attack to {LLM}-as-a-judge, in:
+  Proceedings of the 2024 ACM SIGSAC Conference on Computer and Communications
+  Security (CCS), 2024.
+\newblock \href {http://arxiv.org/abs/2403.17710} {\path{arXiv:2403.17710}}.
+
+\bibitem{zheng2023judging}
+L.~Zheng, W.-L. Chiang, Y.~Sheng, S.~Zhuang, Z.~Wu, Y.~Zhuang, Z.~Lin, Z.~Li,
+  D.~Li, E.~P. Xing, H.~Zhang, J.~E. Gonzalez, I.~Stoica, Judging
+  {LLM}-as-a-judge with {MT-Bench} and {Chatbot Arena}, in: Advances in Neural
+  Information Processing Systems (NeurIPS) 36, Datasets and Benchmarks Track,
+  2023.
+\newblock \href {http://arxiv.org/abs/2306.05685} {\path{arXiv:2306.05685}}.
+
+\bibitem{wang2023notfair}
+P.~Wang, L.~Li, L.~Chen, Z.~Cai, D.~Zhu, B.~Lin, Y.~Cao, Q.~Liu, T.~Liu,
+  Z.~Sui, Large language models are not fair evaluators, in: Proceedings of the
+  62nd Annual Meeting of the Association for Computational Linguistics (ACL),
+  2024.
+\newblock \href {http://arxiv.org/abs/2305.17926} {\path{arXiv:2305.17926}}.
+
+\bibitem{fang2020poisoning}
+M.~Fang, X.~Cao, J.~Jia, N.~Z. Gong, Local model poisoning attacks to
+  {Byzantine}-robust federated learning, in: 29th USENIX Security Symposium
+  (USENIX Security 20), 2020, pp. 1605--1622.
+\newblock \href {http://arxiv.org/abs/1911.11815} {\path{arXiv:1911.11815}}.
+
+\bibitem{baruch2019little}
+G.~Baruch, M.~Baruch, Y.~Goldberg, A little is enough: Circumventing defenses
+  for distributed learning, in: Advances in Neural Information Processing
+  Systems (NeurIPS) 32, 2019.
+\newblock \href {http://arxiv.org/abs/1902.06156} {\path{arXiv:1902.06156}}.
+
+\bibitem{xie2019fall}
+C.~Xie, O.~Koyejo, I.~Gupta, Fall of empires: Breaking {Byzantine}-tolerant
+  {SGD} by inner product manipulation, in: Proceedings of the 35th Conference
+  on Uncertainty in Artificial Intelligence (UAI), PMLR 115, 2019, pp.
+  261--270.
+\newblock \href {http://arxiv.org/abs/1903.03936} {\path{arXiv:1903.03936}}.
+
+\bibitem{blanchard2017krum}
+P.~Blanchard, E.~M. El~Mhamdi, R.~Guerraoui, J.~Stainer, Machine learning with
+  adversaries: Byzantine tolerant gradient descent, in: Advances in Neural
+  Information Processing Systems (NeurIPS) 30, 2017.
+
+\bibitem{yin2018byzantine}
+D.~Yin, Y.~Chen, K.~Ramchandran, P.~Bartlett, Byzantine-robust distributed
+  learning: Towards optimal statistical rates, in: Proceedings of the 35th
+  International Conference on Machine Learning (ICML), PMLR 80, 2018, pp.
+  5650--5659.
+\newblock \href {http://arxiv.org/abs/1803.01498} {\path{arXiv:1803.01498}}.
+
+\bibitem{chen2017byzantine}
+Y.~Chen, L.~Su, J.~Xu, Distributed statistical machine learning in adversarial
+  settings: {Byzantine} gradient descent, Proceedings of the ACM on Measurement
+  and Analysis of Computing Systems (POMACS) 1~(2) (2017) 1--25.
+\newblock \href {https://doi.org/10.1145/3154503} {\path{doi:10.1145/3154503}}.
+
+\bibitem{pillutla2022rfa}
+K.~Pillutla, S.~M. Kakade, Z.~Harchaoui, Robust aggregation for federated
+  learning, IEEE Transactions on Signal Processing 70 (2022) 1142--1154.
+\newblock \href {https://doi.org/10.1109/TSP.2022.3153135}
+  {\path{doi:10.1109/TSP.2022.3153135}}.
+
+\bibitem{hines2024spotlighting}
+K.~Hines, G.~Lopez, M.~Hall, F.~Zarfati, Y.~Zunger, E.~Kiciman, Defending
+  against indirect prompt injection attacks with spotlighting, arXiv preprint
+  arXiv:2403.14720 (2024).
+\newblock \href {http://arxiv.org/abs/2403.14720} {\path{arXiv:2403.14720}}.
+
+\bibitem{kuncheva2003diversity}
+L.~I. Kuncheva, C.~J. Whitaker, Measures of diversity in classifier ensembles
+  and their relationship with the ensemble accuracy, Machine Learning 51~(2)
+  (2003) 181--207.
+\newblock \href {https://doi.org/10.1023/A:1022859003006}
+  {\path{doi:10.1023/A:1022859003006}}.
+
+\bibitem{chennabasappa2025llamafirewall}
+S.~Chennabasappa, C.~Nikolaidis, D.~Song, D.~Molnar, S.~Ding, S.~Wan,
+  S.~Whitman, L.~Deason, N.~Doucette, A.~Montilla, A.~Gampa, B.~de~Paola,
+  D.~Gabi, J.~Crnkovich, J.-C. Testud, K.~He, R.~Chaturvedi, W.~Zhou, J.~Saxe,
+  {LlamaFirewall}: An open source guardrail system for building secure {AI}
+  agents, arXiv preprint arXiv:2505.03574 (2025).
+\newblock \href {http://arxiv.org/abs/2505.03574} {\path{arXiv:2505.03574}}.
+
+\bibitem{robey2023smoothllm}
+A.~Robey, E.~Wong, H.~Hassani, G.~J. Pappas, {SmoothLLM}: Defending large
+  language models against jailbreaking attacks, arXiv preprint arXiv:2310.03684
+  (2023).
+\newblock \href {http://arxiv.org/abs/2310.03684} {\path{arXiv:2310.03684}}.
+
+\bibitem{rafailov2023dpo}
+R.~Rafailov, A.~Sharma, E.~Mitchell, S.~Ermon, C.~D. Manning, C.~Finn, Direct
+  preference optimization: Your language model is secretly a reward model, in:
+  Advances in Neural Information Processing Systems (NeurIPS) 36, 2023.
+\newblock \href {http://arxiv.org/abs/2305.18290} {\path{arXiv:2305.18290}}.
+
+\bibitem{kumar2023certifying}
+A.~Kumar, C.~Agarwal, S.~Srinivas, A.~J. Li, S.~Feizi, H.~Lakkaraju, Certifying
+  {LLM} safety against adversarial prompting, in: Conference on Language
+  Modeling (COLM), 2024.
+\newblock \href {http://arxiv.org/abs/2309.02705} {\path{arXiv:2309.02705}}.
+
+\bibitem{jain2023baseline}
+N.~Jain, A.~Schwarzschild, Y.~Wen, G.~Somepalli, J.~Kirchenbauer, P.-y. Chiang,
+  M.~Goldblum, A.~Saha, J.~Geiping, T.~Goldstein, Baseline defenses for
+  adversarial attacks against aligned language models, arXiv preprint
+  arXiv:2309.00614 (2023).
+\newblock \href {http://arxiv.org/abs/2309.00614} {\path{arXiv:2309.00614}}.
+
+\bibitem{zhou2025corba}
+Z.~Zhou, Z.~Li, J.~Zhang, Y.~Zhang, K.~Wang, Y.~Liu, Q.~Guo, {CORBA}:
+  Contagious recursive blocking attacks on multi-agent systems based on large
+  language models, arXiv preprint arXiv:2502.14529 (2025).
+\newblock \href {http://arxiv.org/abs/2502.14529} {\path{arXiv:2502.14529}}.
+
+\bibitem{mcmahan2017fedavg}
+B.~McMahan, E.~Moore, D.~Ramage, S.~Hampson, B.~Ag{\"u}era~y Arcas,
+  Communication-efficient learning of deep networks from decentralized data,
+  in: Proceedings of the 20th International Conference on Artificial
+  Intelligence and Statistics (AISTATS), PMLR 54, 2017, pp. 1273--1282.
+\newblock \href {http://arxiv.org/abs/1602.05629} {\path{arXiv:1602.05629}}.
+
+\bibitem{mhamdi2018bulyan}
+E.~M. El~Mhamdi, R.~Guerraoui, S.~Rouault, The hidden vulnerability of
+  distributed learning in {Byzantium}, in: Proceedings of the 35th
+  International Conference on Machine Learning (ICML), PMLR 80, 2018, pp.
+  3521--3530.
+\newblock \href {http://arxiv.org/abs/1802.07927} {\path{arXiv:1802.07927}}.
+
+\bibitem{lopuhaa1991breakdown}
+H.~P. Lopuha{\"a}, P.~J. Rousseeuw, Breakdown points of affine equivariant
+  estimators of multivariate location and covariance matrices, The Annals of
+  Statistics 19~(1) (1991) 229--248.
+\newblock \href {https://doi.org/10.1214/aos/1176347978}
+  {\path{doi:10.1214/aos/1176347978}}.
+
+\bibitem{minsker2015geometric}
+S.~Minsker, Geometric median and robust estimation in {Banach} spaces,
+  Bernoulli 21~(4) (2015) 2308--2335.
+\newblock \href {https://doi.org/10.3150/14-BEJ645}
+  {\path{doi:10.3150/14-BEJ645}}.
+
+\bibitem{diakonikolas2016robust}
+I.~Diakonikolas, G.~Kamath, D.~M. Kane, J.~Li, A.~Moitra, A.~Stewart, Robust
+  estimators in high dimensions without the computational intractability, in:
+  2016 IEEE 57th Annual Symposium on Foundations of Computer Science (FOCS),
+  2016, pp. 655--664.
+\newblock \href {http://arxiv.org/abs/1604.06443} {\path{arXiv:1604.06443}}.
+
+\bibitem{lai2016agnostic}
+K.~A. Lai, A.~B. Rao, S.~Vempala, Agnostic estimation of mean and covariance,
+  in: 2016 IEEE 57th Annual Symposium on Foundations of Computer Science
+  (FOCS), 2016, pp. 665--674.
+\newblock \href {https://doi.org/10.1109/FOCS.2016.76}
+  {\path{doi:10.1109/FOCS.2016.76}}.
+
+\bibitem{diakonikolas2019recent}
+I.~Diakonikolas, D.~M. Kane, Recent advances in algorithmic high-dimensional
+  robust statistics, arXiv preprint arXiv:1911.05911 (2019).
+\newblock \href {http://arxiv.org/abs/1911.05911} {\path{arXiv:1911.05911}}.
+
+\bibitem{bagdasaryan2020backdoor}
+E.~Bagdasaryan, A.~Veit, Y.~Hua, D.~Estrin, V.~Shmatikov, How to backdoor
+  federated learning, in: Proceedings of the 23rd International Conference on
+  Artificial Intelligence and Statistics (AISTATS), PMLR 108, 2020, pp.
+  2938--2948.
+\newblock \href {http://arxiv.org/abs/1807.00459} {\path{arXiv:1807.00459}}.
+
+\bibitem{lamport1982byzantine}
+L.~Lamport, R.~Shostak, M.~Pease, The {Byzantine} generals problem, ACM
+  Transactions on Programming Languages and Systems (TOPLAS) 4~(3) (1982)
+  382--401.
+\newblock \href {https://doi.org/10.1145/357172.357176}
+  {\path{doi:10.1145/357172.357176}}.
+
+\bibitem{castro1999pbft}
+M.~Castro, B.~Liskov, Practical {Byzantine} fault tolerance, in: Proceedings of
+  the Third Symposium on Operating Systems Design and Implementation (OSDI),
+  1999, pp. 173--186.
+
+\bibitem{guo2017calibration}
+C.~Guo, G.~Pleiss, Y.~Sun, K.~Q. Weinberger, On calibration of modern neural
+  networks, in: Proceedings of the 34th International Conference on Machine
+  Learning (ICML), 2017.
+\newblock \href {http://arxiv.org/abs/1706.04599} {\path{arXiv:1706.04599}}.
+
+\bibitem{reimers2019sentencebert}
+N.~Reimers, I.~Gurevych, {Sentence-BERT}: Sentence embeddings using {Siamese}
+  {BERT}-networks, in: Proceedings of the 2019 Conference on Empirical Methods
+  in Natural Language Processing (EMNLP), 2019.
+\newblock \href {http://arxiv.org/abs/1908.10084} {\path{arXiv:1908.10084}}.
+
+\bibitem{gao2021simcse}
+T.~Gao, X.~Yao, D.~Chen, {SimCSE}: Simple contrastive learning of sentence
+  embeddings, in: Proceedings of the 2021 Conference on Empirical Methods in
+  Natural Language Processing (EMNLP), 2021.
+\newblock \href {http://arxiv.org/abs/2104.08821} {\path{arXiv:2104.08821}}.
+
+\bibitem{bernstein2019signsgd}
+J.~Bernstein, J.~Zhao, K.~Azizzadenesheli, A.~Anandkumar, {signSGD} with
+  majority vote is communication efficient and fault tolerant, in:
+  International Conference on Learning Representations (ICLR), 2019.
+\newblock \href {http://arxiv.org/abs/1810.05291} {\path{arXiv:1810.05291}}.
+
+\bibitem{ouyang2022instructgpt}
+L.~Ouyang, J.~Wu, X.~Jiang, D.~Almeida, C.~L. Wainwright, P.~Mishkin, C.~Zhang,
+  S.~Agarwal, K.~Slama, A.~Ray, J.~Schulman, J.~Hilton, F.~Kelton, L.~Miller,
+  M.~Simens, A.~Askell, P.~Welinder, P.~Christiano, J.~Leike, R.~Lowe, Training
+  language models to follow instructions with human feedback, in: Advances in
+  Neural Information Processing Systems (NeurIPS) 35, 2022.
+\newblock \href {http://arxiv.org/abs/2203.02155} {\path{arXiv:2203.02155}}.
+
+\bibitem{bai2022constitutional}
+Y.~Bai, S.~Kadavath, S.~Kundu, A.~Askell, J.~Kernion, A.~Jones, A.~Chen,
+  A.~Goldie, A.~Mirhoseini, C.~McKinnon, et~al., Constitutional {AI}:
+  Harmlessness from {AI} feedback, arXiv preprint arXiv:2212.08073 (2022).
+\newblock \href {http://arxiv.org/abs/2212.08073} {\path{arXiv:2212.08073}}.
+
+\bibitem{touvron2023llama2}
+H.~Touvron, L.~Martin, K.~Stone, P.~Albert, A.~Almahairi, Y.~Babaei,
+  N.~Bashlykov, S.~Batra, P.~Bhargava, S.~Bhosale, et~al., {Llama 2}: Open
+  foundation and fine-tuned chat models, arXiv preprint arXiv:2307.09288
+  (2023).
+\newblock \href {http://arxiv.org/abs/2307.09288} {\path{arXiv:2307.09288}}.
+
+\bibitem{mehrotra2023tap}
+A.~Mehrotra, M.~Zampetakis, P.~Kassianik, B.~Nelson, H.~Anderson, Y.~Singer,
+  A.~Karbasi, Tree of attacks: Jailbreaking black-box {LLMs} automatically, in:
+  Advances in Neural Information Processing Systems (NeurIPS) 37, 2024.
+\newblock \href {http://arxiv.org/abs/2312.02119} {\path{arXiv:2312.02119}}.
+
+\bibitem{yu2023gptfuzzer}
+J.~Yu, X.~Lin, Z.~Yu, X.~Xing, {GPTFUZZER}: Red teaming large language models
+  with auto-generated jailbreak prompts, arXiv preprint arXiv:2309.10253
+  (2023).
+\newblock \href {http://arxiv.org/abs/2309.10253} {\path{arXiv:2309.10253}}.
+
+\bibitem{mazeika2024harmbench}
+M.~Mazeika, L.~Phan, X.~Yin, A.~Zou, Z.~Wang, N.~Mu, E.~Sakhaee, N.~Li,
+  S.~Basart, B.~Li, D.~Forsyth, D.~Hendrycks, {HarmBench}: A standardized
+  evaluation framework for automated red teaming and robust refusal, in:
+  Proceedings of the 41st International Conference on Machine Learning (ICML),
+  2024.
+\newblock \href {http://arxiv.org/abs/2402.04249} {\path{arXiv:2402.04249}}.
+
+\bibitem{zhan2024injecagent}
+Q.~Zhan, Z.~Liang, Z.~Ying, D.~Kang, {InjecAgent}: Benchmarking indirect prompt
+  injections in tool-integrated large language model agents, in: Findings of
+  the Association for Computational Linguistics (ACL Findings), 2024.
+\newblock \href {http://arxiv.org/abs/2403.02691} {\path{arXiv:2403.02691}}.
+
+\bibitem{liu2024universal}
+X.~Liu, Z.~Yu, Y.~Zhang, N.~Zhang, C.~Xiao, Automatic and universal prompt
+  injection attacks against large language models, arXiv preprint
+  arXiv:2403.04957 (2024).
+\newblock \href {http://arxiv.org/abs/2403.04957} {\path{arXiv:2403.04957}}.
+
+\end{thebibliography}

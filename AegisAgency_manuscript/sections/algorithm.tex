@@ -1,0 +1,80 @@
+\section{Algorithm}
+\label{sec:algorithm}
+
+\Cref{alg:aegis} states the \Aegis\ adjudication procedure, and \cref{alg:agg} the robust
+aggregation subroutines. The pipeline is a single non-interactive pass: analyze, isolate,
+query $n$ hardened judges (in parallel), aggregate their verdict vectors robustly, and
+enforce the decision. No judge sees another judge's verdict, so a compromised judge cannot
+influence honest ones; its only reach is the aggregator, which is robust by construction.
+
+\begin{algorithm}[t]
+\caption{\Aegis\ adjudication}
+\label{alg:aegis}
+\begin{algorithmic}[1]
+\Require payload $\pay$; policy prompt $c_0$; committee of $n$ hardened judges
+  $\{J_k\}$; aggregation rule $\Agg\in\{\Krum,\cmed,\gmed\}$; threshold $\thr$;
+  encoders (score calibrator $g$, sentence encoder $\phi$)
+\Ensure decision $\hat d\in\{\text{allow},\text{block},\text{escalate}\}$
+\State $(\text{intent},\text{hierarchy}) \gets \textsc{Analyze}(\pay)$
+  \Comment{trusted task spec on instruction channel}
+\State $c \gets c_0 \,\Vert\, \text{intent}\,\Vert\,\text{hierarchy}$
+\State $\tilde{\pay} \gets \textsc{Isolate}(\pay)$
+  \Comment{wrap payload in per-request delimiters; data channel only}
+\For{$k = 1$ \textbf{to} $n$ \textbf{in parallel}}
+  \State $(d_k, \text{raw}_k, \text{rationale}_k) \gets J_k(\text{instruction}{=}c,\ \text{data}{=}\tilde{\pay})$
+  \State $\score_k \gets g(\text{raw}_k)$; \quad $\emb_k \gets \phi(\text{rationale}_k)$
+    \Comment{calibrated score; rationale embedding}
+  \State $\verd_k \gets (\score_k, \emb_k)\in\R^{d}$
+\EndFor
+\State $\uhat \gets \Agg(\verd_1,\dots,\verd_n)$
+  \Comment{robust aggregation in verdict space (\cref{alg:agg})}
+\State $\hat s \gets \pi_1(\uhat)$
+\If{$|\hat s - \thr| < \delta$} \Return \textbf{escalate}
+  \Comment{low-margin case: defer to human/secondary review}
+\ElsIf{$\hat s \ge \thr$} \Return \textbf{block}
+\Else{} \ \Return \textbf{allow}
+\EndIf
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[t]
+\caption{Robust aggregation subroutines $\Agg(\verd_1,\dots,\verd_n)$}
+\label{alg:agg}
+\begin{algorithmic}[1]
+\Function{CoordinateMedian}{$\verd_1,\dots,\verd_n$}
+  \For{$j = 1$ \textbf{to} $d$}
+    \State $\pi_j(\uhat) \gets \operatorname{median}\{\pi_j(\verd_1),\dots,\pi_j(\verd_n)\}$
+  \EndFor
+  \State \Return $\uhat$
+\EndFunction
+\Statex
+\Function{GeometricMedian}{$\verd_1,\dots,\verd_n$; tolerance $\eta$}
+  \State $\bm y \gets \tfrac1n\sum_k \verd_k$
+  \Comment{Weiszfeld iteration~\cite{pillutla2022rfa}}
+  \Repeat
+    \State $w_k \gets 1/\max(\lVert \bm y - \verd_k\rVert,\ \eta)$ for each $k$
+    \State $\bm y \gets \bigl(\sum_k w_k \verd_k\bigr)/\bigl(\sum_k w_k\bigr)$
+  \Until{convergence}
+  \State \Return $\bm y$
+\EndFunction
+\Statex
+\Function{Krum}{$\verd_1,\dots,\verd_n$; assumed faults $f$}
+  \For{$k = 1$ \textbf{to} $n$}
+    \State $\mathcal N_k \gets$ indices of the $n-f-2$ nearest $\verd_j$ ($j\neq k$) to $\verd_k$
+    \State $\text{score}(k) \gets \sum_{j\in\mathcal N_k}\lVert \verd_k - \verd_j\rVert^2$
+  \EndFor
+  \State \Return $\verd_{k^\star}$ where $k^\star = \arg\min_k \text{score}(k)$
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\paragraph{Remarks on the algorithm.}
+The \emph{escalate} branch (\cref{alg:aegis}, line~11) implements graceful degradation at
+the decision level: when the robust aggregate lands within $\delta$ of the threshold—the
+regime where \cref{thm:integrity} cannot certify the decision—the agency defers rather
+than guesses, converting an uncertain automated verdict into a review request. Setting
+$\delta=0$ recovers a pure allow/block agency. The three subroutines expose the
+security--cost trade-off of \cref{sec:complexity}: $\cmed$ is $O(nd)$ per request (with an
+$O(n\log n)$ selection per coordinate), $\gmed$ is $O(Tnd)$ for $T$ Weiszfeld iterations,
+and $\Krum$ is $O(n^2 d)$ from its pairwise distances. All three are negligible beside the
+$n$ LLM calls, which dominate cost and are the reason $n$ is kept small.

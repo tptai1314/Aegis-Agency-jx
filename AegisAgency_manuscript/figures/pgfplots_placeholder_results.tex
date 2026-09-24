@@ -1,0 +1,71 @@
+% figures/pgfplots_placeholder_results.tex  ->  \cref{fig:results}
+% CONCEPTUAL EXPECTED TRENDS ONLY. No experimental data. The coordinates below are
+% illustrative shapes, NOT measurements, and must be replaced with real data before
+% submission (see TODO_before_submission.md).
+\begin{figure}[t]
+\centering
+\begin{subcaptionblock}{0.49\textwidth}
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=\textwidth, height=5.4cm,
+    xlabel={colluding fraction $f/n$}, ylabel={\textsc{asr-uc} (conceptual)},
+    xmin=0, xmax=0.5, ymin=0, ymax=1,
+    xtick={0,0.1,0.2,0.3,0.4,0.5},
+    legend style={at={(0.03,0.97)}, anchor=north west, font=\scriptsize, draw=aegisGray},
+    tick label style={font=\scriptsize}, label style={font=\small},
+    grid=both, grid style={aegisGray!18},
+]
+% single hardened model (no committee: fails once compromised)
+\addplot[aegisGray, dashed, thick, mark=triangle*, mark size=1.4pt]
+  coordinates {(0,0.08)(0.1,0.55)(0.2,0.8)(0.3,0.9)(0.4,0.95)(0.5,0.98)};
+\addlegendentry{single model}
+% plain majority vote
+\addplot[aegisAmber, thick, mark=square*, mark size=1.4pt]
+  coordinates {(0,0.07)(0.1,0.12)(0.2,0.3)(0.3,0.62)(0.4,0.85)(0.5,0.97)};
+\addlegendentry{majority vote}
+% Aegis (robust aggregation): flat until tolerance boundary, then rises
+\addplot[aegisGreen, very thick, mark=*, mark size=1.4pt]
+  coordinates {(0,0.06)(0.1,0.07)(0.2,0.09)(0.3,0.2)(0.4,0.6)(0.5,0.95)};
+\addlegendentry{\Aegis\ (gmed)}
+\end{axis}
+\end{tikzpicture}
+\caption{Evasion vs.\ colluding fraction.}
+\label{fig:results-a}
+\end{subcaptionblock}
+\hfill
+\begin{subcaptionblock}{0.49\textwidth}
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=\textwidth, height=5.4cm,
+    xlabel={committee size $n$}, ylabel={tolerated $f$ \ /\ token cost},
+    xmin=1, xmax=7, ymin=0, ymax=7,
+    xtick={1,2,3,4,5,6,7},
+    legend style={at={(0.03,0.97)}, anchor=north west, font=\scriptsize, draw=aegisGray},
+    tick label style={font=\scriptsize}, label style={font=\small},
+    grid=both, grid style={aegisGray!18},
+]
+% token cost = n (linear)
+\addplot[aegisRed, thick, mark=square*, mark size=1.4pt]
+  coordinates {(1,1)(2,2)(3,3)(4,4)(5,5)(6,6)(7,7)};
+\addlegendentry{token cost ($\times$)}
+% tolerated faults floor((n-1)/2)
+\addplot[aegisGreen, very thick, mark=*, mark size=1.4pt]
+  coordinates {(1,0)(2,0)(3,1)(4,1)(5,2)(6,2)(7,3)};
+\addlegendentry{tolerated $f$}
+\end{axis}
+\end{tikzpicture}
+\caption{Security--cost frontier.}
+\label{fig:results-b}
+\end{subcaptionblock}
+\caption{\textbf{Conceptual expected trends; not experimental results.} \emph{Placeholder
+curves; replace with actual experimental data before submission.} (a)~Expected evasion
+(\textsc{asr-uc}) as the colluding fraction grows: a single model fails as soon as it is
+compromised, majority vote degrades earlier, and robust aggregation is expected to stay low
+until the tolerance boundary $f<n/2$ before rising (graceful degradation, G3). (b)~The
+security--cost frontier of \cref{tab:cost}: token cost grows linearly in $n$ while tolerated
+faults grow as $\lfloor(n-1)/2\rfloor$. Shapes are illustrative, contain no measured data,
+and encode the hypotheses the evaluation will test.}
+\label{fig:results}
+\end{figure}

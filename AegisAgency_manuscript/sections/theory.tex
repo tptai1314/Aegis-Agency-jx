@@ -1,0 +1,233 @@
+\section{Theoretical Analysis}
+\label{sec:theory}
+
+We establish the decision-integrity property (G1) for robust verdict aggregation under
+explicit assumptions, its availability dual, the second-order-injection containment (G2),
+and the correlated-failure degradation (G3). Proofs of the two results marked with a
+dagger ($\dagger$) are complete and given in \cref{app:proofs}; the remaining statements
+are labelled as proof sketches or as restatements of cited results, and none is presented
+as more than it is. \Cref{fig:theory} shows the dependency structure.
+
+\input{figures/tikz_theory_diagram.tex}
+
+\subsection{Assumptions}
+\begin{assumption}[Honest concentration]
+\label{ass:concentration}
+There is a reference verdict $\ustar\in\R^d$ and a radius $r\ge 0$ such that every honest
+judge's verdict vector satisfies $\lVert \verd_k-\ustar\rVert\le r$ for all $k\in\Hset$.
+\end{assumption}
+
+\begin{assumption}[Decision margin]
+\label{ass:margin}
+The reference score is bounded away from the threshold: $|\pi_1(\ustar)-\thr|\ge\gamma$
+for some margin $\gamma>0$, and the reference decision equals the ground truth,
+$\dec(\ustar)=y^\star(\pay)$.
+\end{assumption}
+
+\begin{assumption}[Tolerable Byzantine fraction]
+\label{ass:fraction}
+For median-type rules ($\cmed,\gmed$), $f<n/2$; for $\Krum$, $2f{+}2<n$.
+\end{assumption}
+
+\begin{remark}
+\Cref{ass:concentration,ass:margin} are the substantive assumptions and they are
+\emph{empirical claims about honest judges}, not mathematical conveniences. Honest
+concentration can fail if honest judges genuinely disagree (a hard, ambiguous payload) or
+if they share a systematic bias~\cite{zheng2023judging,wang2023notfair}; the margin can be
+small near policy boundaries. We measure $r$ and $\gamma$ in \cref{sec:experiments} rather
+than assume favourable values, and \cref{prop:correlated} treats the case where
+concentration degrades because honest errors are correlated.
+\end{remark}
+
+\subsection{Robustness of the aggregate verdict}
+The engine of (G1) is a deterministic robustness bound for the geometric median. We state
+it and give the complete proof in \cref{app:proofs}.
+
+\begin{lemma}[Geometric-median displacement$^{\dagger}$]
+\label{lem:gmedrobust}
+Let $\verd_1,\dots,\verd_n\in\R^d$, and suppose a subset $\Hset$ with $|\Hset|=n-f$
+satisfies $\lVert\verd_k-\ustar\rVert\le r$ for all $k\in\Hset$. If $f<n/2$, then the
+geometric median $\uhat=\gmed(\verd_1,\dots,\verd_n)$ satisfies
+\begin{equation}
+  \lVert \uhat-\ustar\rVert \;\le\; C_\alpha\, r,
+  \qquad C_\alpha \;=\; \frac{2(n-f)}{\,n-2f\,}\;=\;\frac{2(1-\alpha)}{1-2\alpha},
+  \label{eq:gmedbound}
+\end{equation}
+where $\alpha=f/n<\tfrac12$. The bound holds for arbitrary (adversarially chosen)
+Byzantine verdicts $\{\verd_k\}_{k\in\Bset}$.
+\end{lemma}
+
+\begin{remark}
+$C_\alpha$ is finite and increasing on $[0,\tfrac12)$, diverging as $\alpha\to\tfrac12$:
+$C_0=2$, $C_{1/4}=3$, $C_{1/3}=4$. Thus tolerance is graceful, not binary—the aggregate
+can be pushed further as the Byzantine fraction approaches one half, exactly the graceful
+degradation (G3) asks for. The constant matches the breakdown behaviour of multivariate
+location estimators~\cite{lopuhaa1991breakdown,minsker2015geometric}. We are careful
+\emph{not} to claim this constant is optimal or that it is a matching bound; it is a
+sufficient displacement bound.
+\end{remark}
+
+\subsection{Decision integrity and availability}
+\begin{theorem}[Decision integrity under a Byzantine minority$^{\dagger}$]
+\label{thm:integrity}
+Under \cref{ass:concentration,ass:margin} and \cref{ass:fraction} with a median-type rule,
+if the margin dominates the displacement,
+\begin{equation}
+  \gamma \;>\; C_\alpha\, r ,
+  \label{eq:integritycond}
+\end{equation}
+then the aggregate decision equals the honest reference decision,
+$\dec(\uhat)=\dec(\ustar)=y^\star(\pay)$, for every choice of the $f$ Byzantine verdicts.
+Consequently up to $f$ colluding judges can neither force a block payload to pass nor a
+benign payload to be blocked.
+\end{theorem}
+
+\begin{corollary}[Availability]
+\label{cor:availability}
+Under the hypotheses of \cref{thm:integrity} the over-refusal event $\{\hat d=1\mid
+y^\star=0\}$ cannot be induced by the $f$ Byzantine judges: the guarantee is symmetric in
+the two decision directions. Hence robust aggregation addresses the availability goal of
+\cref{sec:problem} on the same terms as the integrity goal.
+\end{corollary}
+
+\Cref{thm:integrity} is the precise form of the property the idea flagged as
+``to be proven, not assumed.'' Its content is conditional: robust aggregation converts a
+minority of arbitrary Byzantine verdicts into a bounded displacement of the aggregate, and
+a sufficient decision margin converts a bounded displacement into an unchanged decision.
+The condition $\gamma>C_\alpha r$ is where the empirical burden sits—it is satisfied only
+if honest judges concentrate tightly ($r$ small) relative to their distance from the
+policy boundary ($\gamma$ large), which is precisely what backbone diversity and hardening
+are meant to deliver and what \cref{sec:experiments} measures.
+
+\subsection{Coordinate-wise median and Krum}
+\begin{proposition}[Coordinate-median integrity]
+\label{prop:cmed}
+Under \cref{ass:concentration,ass:fraction} with $f<n/2$, each coordinate of
+$\uhat=\cmed(\verd_1,\dots,\verd_n)$ lies within the range of the honest coordinates:
+$\min_{k\in\Hset}\pi_j(\verd_k)\le \pi_j(\uhat)\le \max_{k\in\Hset}\pi_j(\verd_k)$ for all
+$j$. In particular $|\pi_1(\uhat)-\pi_1(\ustar)|\le r$, and \cref{eq:integritycond} with
+$C_\alpha$ replaced by $1$ suffices for \cref{thm:integrity} to hold for the score
+coordinate.
+\end{proposition}
+\begin{proof}[Proof sketch]
+With $f<n/2$ Byzantine values among $n$, the median order statistic of each coordinate is
+bracketed by two honest order statistics, hence lies in the honest range; the
+score-coordinate bound and the margin argument then follow as in \cref{thm:integrity}. The
+full argument is a one-dimensional specialisation and is given in \cref{app:proofs}. This
+recovers the tolerance behaviour of coordinate-wise median in Byzantine
+learning~\cite{yin2018byzantine}.
+\end{proof}
+
+\begin{lemma}[Krum selection, restated from~\cite{blanchard2017krum}]
+\label{lem:krum}
+Under \cref{ass:fraction} with $2f{+}2<n$, the vector selected by $\Krum$ has, in
+expectation over honest stochasticity, squared distance to the honest barycenter bounded
+by a constant multiple of the honest variance; in particular a Byzantine minority cannot
+force $\Krum$ to select a vector arbitrarily far from the honest verdicts.
+\end{lemma}
+\begin{remark}
+\Cref{lem:krum} is a restatement of the guarantee of Blanchard et
+al.~\cite{blanchard2017krum} adapted to our verdict space; we do not reprove it. Two
+caveats are transplanted with it. First, the guarantee bounds distance to the honest
+barycenter, so it feeds \cref{thm:integrity} only under \cref{ass:concentration} with a
+possibly larger effective $r$. Second, single-selection rules such as $\Krum$ can behave
+poorly in high dimension~\cite{mhamdi2018bulyan}; because our verdict space is
+low-dimensional after embedding compression ($d=1+m$ with modest $m$), and because
+$\cmed$/$\gmed$ avoid the single-selection pathology, we treat $\Krum$ as one option among
+three rather than the default.
+\end{remark}
+
+\subsection{Second-order injection containment}
+\begin{proposition}[Isolation containment]
+\label{prop:isolation}
+Suppose every honest judge is $\varepsilon$-isolated (\cref{def:isolation}) and let a
+second-order injection alter the payload from $\pay$ to $\pay'$. Then the injection changes
+the decision of any fixed honest judge with probability at most $\varepsilon$, and by a
+union bound it changes more than $t$ honest decisions with probability at most
+$\binom{n-f}{t+1}\varepsilon^{\,t+1}$ under independent judge draws. In the limit
+$\varepsilon\to 0$ (perfect isolation), a second-order injection that does not compromise a
+judge's parameters leaves all honest verdicts unchanged, so the attacker's only remaining
+lever is to spend from its budget of $f$ compromised judges, which is governed by
+\cref{thm:integrity}.
+\end{proposition}
+\begin{proof}[Proof sketch]
+The per-judge bound is immediate from \cref{def:isolation}: total-variation distance
+$\varepsilon$ bounds the change in probability of any event, including the decision event.
+The union/count bound assumes honest judges respond independently to the injection, which
+holds when their randomness is independent; correlated responses are exactly the regime of
+\cref{prop:correlated}. The $\varepsilon\to0$ statement is the definition of perfect
+isolation. See \cref{app:proofs}.
+\end{proof}
+\begin{remark}
+\Cref{prop:isolation} is conditional on the measured leakage $\varepsilon$; it does not
+assert $\varepsilon=0$ in practice. Its role is to separate two attack channels that
+un-isolated pipelines conflate: without isolation, a payload injection can move honest
+verdicts \emph{for free} (outside the Byzantine budget), defeating any minority-tolerance
+rule; with isolation, injection is priced into the budget $f$ that
+\cref{thm:integrity} already handles. This is the formal content of the claim that
+isolation ``closes the surface the defense creates by reading untrusted text.''
+\end{remark}
+
+\subsection{Correlated failure: when the guarantee is vacuous}
+\Cref{ass:concentration} presumes honest judges cluster near $\ustar$. If they instead
+fail \emph{together}, the honest inputs to the aggregator are themselves wrong and no
+robust rule can recover the correct decision. We make the dependence on correlation
+quantitative for the decision-level (majority) view, which upper-bounds what any rule
+using only decisions can achieve.
+
+\begin{proposition}[Correlated honest failure]
+\label{prop:correlated}
+Model the honest judges' correctness indicators $\{Z_k\}_{k\in\Hset}$, $Z_k=\mathbf 1\{J_k
+\text{ decides correctly}\}$, as exchangeable Bernoulli variables with mean
+$\mu=\Prob[Z_k=1]$ and pairwise correlation $\rho\in[0,1]$. Let $\bar Z=\frac1{n-f}
+\sum_{k\in\Hset}Z_k$ be the honest correct fraction. Then
+\begin{equation}
+  \E[\bar Z]=\mu,\qquad
+  \operatorname{Var}(\bar Z)=\mu(1-\mu)\!\left[\frac{1-\rho}{\,n-f\,}+\rho\right],
+  \label{eq:corrvar}
+\end{equation}
+so as $n\to\infty$, $\operatorname{Var}(\bar Z)\to \mu(1-\mu)\,\rho>0$ for any $\rho>0$.
+Consequently, if $\mu<\tfrac12$ (honest judges are more often wrong than right on a class
+of payloads), adding judges does not drive the probability of a correct honest majority to
+one; and for $\rho>0$ the honest majority fails with probability bounded below by a
+constant independent of $n$ (Chebyshev, \cref{app:proofs}). Backbone/prompt diversity is
+the mechanism that reduces $\rho$; the ceiling in \cref{eq:corrvar} is why diversity is a
+\emph{requirement}, not an optimisation.
+\end{proposition}
+\begin{remark}
+\Cref{prop:correlated} formalises the idea's warning that ``Krum tolerance is vacuous if
+all judges fail identically'' ($\rho\to1$ collapses the committee to a single effective
+judge) and that diversity is needed to make the committee more than a single point of
+failure. It also explains why plain majority vote and any verdict-space rule share the same
+failure mode at the decision level: robustness to a Byzantine \emph{minority} cannot
+substitute for correctness of the honest \emph{majority}. This is a limiting-case analysis,
+not a defense; it is exactly the residual failure the idea insists on reporting.
+\end{remark}
+
+\subsection{Summary of guarantees}
+\Cref{tab:guarantees} collects the results, their assumptions, and their status. The two
+complete proofs (\cref{lem:gmedrobust,thm:integrity}) are what establish (G1); the
+remaining statements support (G2), the median/Krum variants, and the honest boundary of
+the whole approach.
+
+\begin{table}[t]
+\centering
+\caption{Guarantees, assumptions, and proof status. ``Complete'' proofs appear in
+\cref{app:proofs}; ``restated'' results are cited, not reproven; ``sketch'' proofs give the
+argument with the routine specialisation deferred to the appendix.}
+\label{tab:guarantees}
+\small
+\begin{tabular}{@{}p{3.2cm}p{4.4cm}p{2.2cm}p{2.4cm}@{}}
+\toprule
+Result & Assumptions & Goal & Status \\
+\midrule
+\cref{lem:gmedrobust} (gmed displacement) & concentration; $f<n/2$ & (G1) & complete \\
+\cref{thm:integrity} (integrity) & concentration; margin $\gamma>C_\alpha r$; $f<n/2$ & (G1) & complete \\
+\cref{cor:availability} (availability) & as \cref{thm:integrity} & (G1) avail. & complete (corollary) \\
+\cref{prop:cmed} (coordinate median) & concentration; $f<n/2$ & (G1) & sketch \\
+\cref{lem:krum} (Krum) & $2f{+}2<n$ & (G1) & restated~\cite{blanchard2017krum} \\
+\cref{prop:isolation} (isolation) & $\varepsilon$-isolation & (G2) & sketch \\
+\cref{prop:correlated} (correlated failure) & exchangeable honest errors, correlation $\rho$ & (G3) & complete (limiting case) \\
+\bottomrule
+\end{tabular}
+\end{table}

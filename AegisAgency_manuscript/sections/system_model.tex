@@ -1,0 +1,100 @@
+\section{System Model}
+\label{sec:system}
+
+\input{figures/tikz_architecture.tex}
+
+\subsection{The defense agency}
+\Aegis is a defensive multi-agent system that adjudicates whether a candidate output may
+be released. It comprises (\cref{fig:architecture}):
+\begin{itemize}[leftmargin=1.4em,itemsep=2pt,topsep=2pt]
+  \item an \textbf{Input agent} that receives the candidate output and any accompanying
+        context and places the untrusted content into a structured data channel;
+  \item one or more \textbf{Analyzer agents} that extract task-relevant features—the
+        apparent user intent and the original instruction/privilege
+        hierarchy~\cite{wallace2024instruction}—and attach them to the instruction
+        channel as trusted metadata;
+  \item a committee of $n$ \textbf{Judge agents} ($1\le n\le 7$ in our study), each a
+        hardened LLM~\cite{chen2025secalign,chen2024struq} that reads the isolated
+        payload and emits a verdict $v_k$ as in \cref{eq:verdict};
+  \item a \textbf{robust aggregator} that replaces AutoDefense's single Coordinator with
+        a Byzantine-robust rule $\Agg$ over $\{\verd_k\}$; and
+  \item an \textbf{Output agent} that enforces the aggregate decision $\hat d$ (release,
+        block, or escalate).
+\end{itemize}
+The committee is deployed in one of two topologies. In the \emph{parallel} topology the
+$n$ judges are queried independently and concurrently; in the \emph{sequential} topology
+they are queried in series (relevant only to latency, \cref{sec:complexity}). Judges do
+not exchange messages with one another; each communicates only with the aggregator. This
+star topology is deliberate: it removes the inter-agent communication channel that
+recent attacks exploit~\cite{he2025redteaming,lee2024promptinfection} and confines
+adjudication to verdicts the aggregator can robustly combine.
+
+\subsection{Trust boundaries}
+Three assets are \emph{trusted}: the aggregation substrate executes $\Agg$ correctly and
+non-interactively; the instruction channel delivering the operator's policy is authentic;
+and at least $n-f$ judges are honest, with $f$ small enough to satisfy the tolerance
+condition of the chosen rule ($2f{+}2<n$ for $\Krum$, $f<n/2$ for median rules). Two
+assets are \emph{untrusted}: the payload $\pay$, which may be adversarially crafted, and
+up to $f$ judges, which may be compromised or colluding. The aggregator being trusted is
+what distinguishes our setting from Byzantine agreement among mutually distrustful
+parties~\cite{lamport1982byzantine,castro1999pbft}: we need robust \emph{estimation} of a
+verdict, not a consensus protocol. This mirrors the trusted-server assumption of robust
+federated aggregation~\cite{blanchard2017krum,yin2018byzantine}, transplanted from
+gradients to verdicts.
+
+\subsection{Threat model}
+\label{sec:threatmodel}
+We adopt the standard security-analysis structure of goal, knowledge, and capability.
+
+\paragraph{Attacker goal.}
+Two objectives, dual to each other:
+\begin{itemize}[leftmargin=1.4em,itemsep=1pt,topsep=2pt]
+  \item \emph{Integrity violation:} cause the agency to \textbf{pass} an output that is
+        unsafe or that violates the intended task/instruction
+        hierarchy—an evasion, measured by attack success rate under compromise.
+  \item \emph{Availability violation:} cause the agency to \textbf{block} benign
+        outputs—over-refusal, a denial-of-service against legitimate
+        traffic~\cite{zhou2025corba}.
+\end{itemize}
+
+\paragraph{Attacker knowledge.}
+Black-box to gray-box. The attacker may know the pipeline design, the aggregation rule,
+the judges' backbones, and the policy prompt, but not the operator's private randomness
+(e.g.\ any per-request nonce used for isolation delimiting). This spans the practical
+range from a third party who only submits payloads to an insider who fine-tuned a judge.
+
+\paragraph{Attacker capabilities.}
+Three levers, usable in combination:
+\begin{enumerate}[leftmargin=1.6em,itemsep=1pt,topsep=2pt]
+  \item \textbf{Insider compromise.} Control up to $f$ judges, which then return
+        arbitrary, jointly optimised verdict vectors. This is the LLM-committee analogue
+        of Byzantine workers~\cite{blanchard2017krum} and of poisoned federated
+        clients~\cite{bagdasaryan2020backdoor,fang2020poisoning}.
+  \item \textbf{Second-order injection.} Craft the payload $\pay$ so that, in addition to
+        being the object under review, it carries instructions aimed at the honest judges
+        reading it~\cite{shi2024judgeinjection,greshake2023injection}. Without isolation
+        this can flip honest verdicts; with isolation it is reduced to the leakage
+        $\varepsilon$ of \cref{def:isolation}.
+  \item \textbf{Adaptivity.} Optimise the attack against the specific aggregation rule,
+        as adaptive attacks do against robust federated
+        aggregators~\cite{fang2020poisoning,baruch2019little,xie2019fall}. Colluding
+        judges may coordinate to stay within the honest verdict spread while biasing the
+        aggregate.
+\end{enumerate}
+
+\paragraph{Collusion.}
+Byzantine judges are not independent: they may share a strategy and coordinate their
+verdict vectors to move the aggregate as far as the tolerance condition permits. Our
+analysis and evaluation treat collusion as the default, not the worst case of an
+otherwise-independent fault.
+
+\paragraph{Out of scope.}
+We do not defend against (i)~all judges compromised ($f\ge n-f$), which no
+minority-tolerance rule can address; (ii)~a correlated failure that affects \emph{every}
+judge identically—studied in \cref{sec:theory} as a limiting case that voids the
+guarantee, and mitigated but not eliminated by backbone diversity; (iii)~compromise of
+the trusted aggregation substrate or the instruction channel; and (iv)~attacks on the
+underlying serving infrastructure. \Cref{fig:threat} maps each in-scope lever to the
+component it targets and the defense that contains it.
+
+\input{figures/tikz_threat_privacy_robustness.tex}

@@ -1,0 +1,43 @@
+\section{Additional Experimental Detail}
+\label{app:experiments}
+
+This appendix expands the protocol of \cref{sec:experiments}. As there, \textbf{all figures
+and tables in this appendix are placeholders / expected trends and must be replaced with
+measured results before submission.}
+
+\subsection{Attacker instantiation}
+For the \emph{colluding-defenders} attack we adopt the ``a-little-is-enough''
+principle~\cite{baruch2019little}: the $f$ Byzantine judges each report a verdict vector
+$\verd_k=\ustar+ z\,\hat{\bm g}$, where $\hat{\bm g}$ is the estimated direction toward the
+decision boundary and $z\le r$ keeps each Byzantine verdict inside the honest radius so that
+robust aggregation cannot flag it as an outlier. The colluding-fraction sweep increases $f$
+until $2f{+}2<n$ is violated. For the \emph{adaptive-on-aggregation} attack we optimise
+$\{\verd_k\}_{k\in\Bset}$ against the specific rule: inner-product
+manipulation~\cite{xie2019fall} for $\gmed$/$\cmed$ and the local-model-poisoning
+objective~\cite{fang2020poisoning} for $\Krum$. The \emph{second-order injection} attack
+uses JudgeDeceiver~\cite{shi2024judgeinjection} to craft payload suffixes, evaluated with
+isolation on and off to estimate $\varepsilon$ (\cref{def:isolation}).
+
+\subsection{Measuring the theory's quantities}
+\Cref{thm:integrity,prop:correlated} predict behaviour through $r$, $\gamma$, and $\rho$;
+we measure all three. The honest radius $r$ is the empirical $95$th-percentile of
+$\lVert\verd_k-\ustar\rVert$ over honest judges with $\ustar$ the honest geometric median.
+The margin $\gamma$ is $|\pi_1(\ustar)-\thr|$ averaged over payloads, reported separately
+for benign and adversarial classes. The correlation $\rho$ is the mean pairwise correlation
+of honest correctness indicators, reported for homogeneous and diverse committees to test
+RQ4. Plotting \textsc{asr-uc} against the measured $C_\alpha r/\gamma$ ratio provides a
+direct check of \cref{eq:integritycond}: the theory predicts a rise in \textsc{asr-uc} as
+$C_\alpha r/\gamma$ crosses $1$.
+
+\subsection{Placeholder frontier and sweeps}
+\Cref{fig:results} (main text) shows the two conceptual sweeps: \textsc{asr-uc} versus
+colluding fraction, and the security--cost frontier versus $n$. Both are drawn as expected
+trends with no data. The correlated-failure ablation is reported as paired
+(homogeneous, diverse) points at each $n$, with $\rho$ annotated.
+
+\subsection{Reproducibility artefacts}
+On release we provide: backbone checkpoints/versions and decoding parameters; the isolation
+delimiter scheme and per-request nonce generation; hardening (SecAlign/StruQ) training
+configurations; aggregation tolerances ($\eta$, assumed $f$); attack budgets per benchmark;
+seeds; and the payload manifests mapping each item to its source benchmark and ground-truth
+label. Each released number carries its measurement conditions and dispersion across seeds.

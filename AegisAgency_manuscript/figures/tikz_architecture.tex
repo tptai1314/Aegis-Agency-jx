@@ -1,0 +1,77 @@
+% figures/tikz_architecture.tex  ->  \cref{fig:architecture}
+\begin{figure}[t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[node distance=8mm and 13mm]
+
+% ---- lane 1: honest data path (left to right) ----
+\node[payload] (payload) {\icondoc[aegisAmber]\\ untrusted\\ payload $\pay$};
+\node[honest, right=of payload] (input) {\iconserver[aegisBlue]\\ Input\\ agent};
+\node[honest, right=of input] (analyzer)
+  {\iconmodel[aegisBlue]\\ Analyzer\\ agents};
+
+% ---- isolation gate (defense) ----
+\node[defense, right=16mm of analyzer] (iso)
+  {\iconlock[aegisGreen]\\ payload\\ isolation};
+
+% ---- judge committee (stacked); Byzantine judge placed at top so the
+%      compromise arrow drops vertically without crossing other judges ----
+\node[byz,    right=18mm of iso, yshift=15mm] (j3) {\iconjudge[aegisRed]\ Judge $k$ (Byz.)};
+\node[honest, below=5mm of j3] (j1) {\iconjudge[aegisBlue]\ Judge $1$};
+\node[honest, below=5mm of j1] (j2) {\iconjudge[aegisBlue]\ Judge $2$};
+\node[honest, below=5mm of j2] (jn) {\iconjudge[aegisBlue]\ Judge $n$};
+
+% committee grouping box
+\begin{scope}[on background layer]
+  \node[group, fit=(j3)(j1)(j2)(jn),
+        label={[grouplabel, xshift=16mm]above:hardened committee ($n$)}] (comm) {};
+\end{scope}
+
+% ---- robust aggregator (defense) ----
+\node[defense, right=18mm of comm] (agg)
+  {\iconshield[aegisGreen]\\ Byzantine-robust\\ aggregation\\ $\Agg\in\{\Krum,\cmed,\gmed\}$};
+\node[honest, right=of agg] (out)
+  {\iconserver[aegisBlue]\\ Output\\ agent};
+\node[theory, below=9mm of out] (dec)
+  {decision\\ $\hat d=\dec(\uhat)$};
+
+% ---- attacker (adversarial lane, top), placed above the Byzantine judge ----
+\node[adv, above=9mm of j3] (atk) {\iconattacker[aegisRed]\\ adaptive\\ attacker};
+
+% ===== flows =====
+% data/model flow (blue)
+\draw[dataflow] (payload) -- (input);
+\draw[dataflow] (input) -- (analyzer);
+\draw[dataflow] (analyzer) -- (iso);
+\draw[dataflow] (iso.east) -- (j1.west);
+\draw[dataflow] (iso.east) -- (j2.west);
+\draw[dataflow] (iso.east) -- (j3.west);
+\draw[dataflow] (iso.east) -- (jn.west);
+\draw[dataflow] (j1.east) -- (agg.west);
+\draw[dataflow] (j2.east) -- (agg.west);
+\draw[dataflow] (j3.east) -- (agg.west);
+\draw[dataflow] (jn.east) -- (agg.west);
+\draw[dataflow] (agg) -- (out);
+\draw[dataflow] (out) -- (dec);
+
+% adversarial flow (red): inject payload (routed along the top) + compromise judge k
+\draw[advflow] (atk.north) |- ($(payload.north)+(0,10mm)$) -| (payload.north)
+  node[elabel,pos=0.25]{second-order injection};
+\draw[advflow] (atk.south) -- (j3.north)
+  node[elabel,pos=0.55,xshift=-11mm]{compromise};
+
+% control/verdict labels on chips
+\node[elabel] at ($(j1.east)!0.5!(agg.west)+(0,3mm)$) {verdicts $\verd_k$};
+\node[elabel] at ($(iso.east)!0.5!(j2.west)$) {data ch.};
+
+\end{tikzpicture}}
+\caption{The \Aegis\ architecture. Blue: honest data/model flow through Input, Analyzer,
+isolation, the hardened judge committee, robust aggregation, and Output. Green:
+defensive components (payload isolation and Byzantine-robust verdict aggregation) that
+replace AutoDefense's single Coordinator. Red (dashed): the adaptive attacker, which both
+injects the untrusted payload (second-order injection against the judges) and compromises
+up to $f$ judges (here Judge~$k$). Judges do not communicate with one another; each sends
+only its verdict $\verd_k$ to the aggregator. Icons are pure TikZ. Arrow lanes are separated
+by colour and dash pattern; labels sit on white chips so no connector crosses text.}
+\label{fig:architecture}
+\end{figure}

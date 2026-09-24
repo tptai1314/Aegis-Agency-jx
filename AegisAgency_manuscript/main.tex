@@ -1,0 +1,130 @@
+%% =====================================================================
+%% Aegis-Agency: Byzantine-Robust, Injection-Hardened Multi-Agent
+%% Defense Pipelines
+%% Elsevier (elsarticle) preprint manuscript.
+%% Build:  latexmk -pdf main.tex   (or pdflatex x2 + bibtex)
+%% =====================================================================
+\documentclass[preprint,12pt]{elsarticle}
+
+% ---- math / symbols ----
+\usepackage{amsmath,amssymb,amsthm,mathtools,bm}
+% ---- tables / floats ----
+\usepackage{booktabs,multirow,array}
+\usepackage{graphicx}
+\usepackage{subcaption}
+% ---- algorithms ----
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+% ---- graphics ----
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{xcolor}
+% ---- misc ----
+\usepackage{enumitem}
+\usepackage{xspace}
+\usepackage{orcidlink}
+
+% cleveref must be loaded after amsmath/hyperref; elsarticle loads hyperref itself.
+\usepackage[nameinlink,capitalise]{cleveref}
+
+% shared TikZ visual grammar + icons
+\input{figures/tikz_styles.tex}
+
+% ---- theorem environments ----
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{assumption}{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+% cleveref names for custom theorem-like environments
+\crefname{assumption}{Assumption}{Assumptions}
+\Crefname{assumption}{Assumption}{Assumptions}
+\crefname{definition}{Definition}{Definitions}
+\Crefname{definition}{Definition}{Definitions}
+\crefname{proposition}{Proposition}{Propositions}
+\Crefname{proposition}{Proposition}{Propositions}
+
+% ---- notation macros ----
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\Hset}{\mathcal{H}}        % honest judges
+\newcommand{\Bset}{\mathcal{B}}        % Byzantine judges
+\newcommand{\Agg}{\mathsf{Agg}}        % aggregation rule
+\newcommand{\Krum}{\textsc{Krum}}
+\newcommand{\gmed}{\operatorname{gmed}}
+\newcommand{\cmed}{\operatorname{cmed}}
+\newcommand{\dec}{\mathsf{D}}          % decision function
+\newcommand{\pay}{x}                   % inspected payload
+\newcommand{\verd}{\bm{u}}             % verdict vector
+\newcommand{\ustar}{\bm{u}^{\star}}
+\newcommand{\uhat}{\hat{\bm{u}}}
+\newcommand{\score}{s}
+\newcommand{\emb}{\bm{e}}
+\newcommand{\thr}{\tau}
+\newcommand{\Aegis}{\textsf{Aegis-Agency}\xspace}
+\newcommand{\aegis}{\textsf{Aegis-Agency}\xspace}
+\newcommand{\todo}[1]{\textcolor{red}{[#1]}}
+\newcommand{\citneeded}[1]{\textcolor{red}{[Citation needed: #1]}}
+
+\journal{Computers \& Security / IEEE TDSC (target)}
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{\Aegis: Byzantine-Robust, Injection-Hardened\\
+Multi-Agent Defense Pipelines for Large Language Models}
+
+\author[inst1]{Author One\corref{cor1}}
+\ead{author.one@example.edu}
+\cortext[cor1]{Corresponding author.}
+\author[inst1]{Author Two}
+\author[inst2]{Author Three}
+\affiliation[inst1]{organization={Department of Computing, University Placeholder},
+  city={City}, country={Country}}
+\affiliation[inst2]{organization={Security Research Institute, Placeholder},
+  city={City}, country={Country}}
+
+\input{sections/abstract.tex}
+
+\begin{keyword}
+LLM security \sep multi-agent systems \sep Byzantine-robust aggregation \sep
+prompt injection \sep jailbreak defense \sep LLM-as-a-judge \sep insider threat \sep
+graceful degradation
+\end{keyword}
+
+\end{frontmatter}
+
+% ---------------------------------------------------------------------
+\input{sections/introduction.tex}
+\input{sections/related_work.tex}
+\input{sections/preliminaries.tex}
+\input{sections/system_model.tex}
+\input{sections/problem_formulation.tex}
+\input{sections/methodology.tex}
+\input{sections/algorithm.tex}
+\input{sections/theory.tex}
+\input{sections/complexity.tex}
+\input{sections/experiments.tex}
+\input{sections/discussion.tex}
+\input{sections/limitations.tex}
+\input{sections/conclusion.tex}
+
+% ---------------------------------------------------------------------
+\appendix
+\input{appendix/proofs.tex}
+\input{appendix/additional_experiments.tex}
+
+% ---------------------------------------------------------------------
+\bibliographystyle{elsarticle-num}
+\bibliography{references_verified}
+
+\end{document}

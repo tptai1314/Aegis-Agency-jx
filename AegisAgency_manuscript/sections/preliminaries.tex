@@ -1,0 +1,93 @@
+\section{Preliminaries and Notation}
+\label{sec:prelim}
+
+We collect the notation used throughout; \cref{tab:notation} is a reference.
+
+\paragraph{Judges and verdicts.}
+A defense agency employs a committee of $n$ \emph{judge} agents indexed by
+$[n]=\{1,\dots,n\}$. Presented with an inspected payload $\pay$ (a candidate LLM
+response and/or an inter-agent message), judge $k$ emits a \emph{verdict}
+\begin{equation}
+  v_k \;=\; \bigl(d_k,\; \score_k,\; \emb_k\bigr),
+  \qquad d_k\in\{0,1\},\;\; \score_k\in[0,1],\;\; \emb_k\in\R^{m},
+  \label{eq:verdict}
+\end{equation}
+where $d_k$ is the binary decision ($0=$ allow, $1=$ block), $\score_k$ is a
+calibrated block-score (a probability that the payload violates the policy, calibrated
+in the sense of~\cite{guo2017calibration}), and $\emb_k$ is a rationale embedding of the
+judge's free-text justification produced by a fixed sentence
+encoder~\cite{reimers2019sentencebert,gao2021simcse}. We stack the continuous part into a
+\emph{verdict vector}
+\begin{equation}
+  \verd_k \;=\; \bigl(\score_k,\; \emb_k\bigr)\;\in\;\R^{d},\qquad d = 1+m,
+  \label{eq:verdictvec}
+\end{equation}
+and write $\pi_1(\verd_k)=\score_k$ for the score coordinate. The decision induced by a
+verdict vector is $\dec(\verd)=\mathbf{1}\{\pi_1(\verd)\ge \thr\}$ for a fixed
+threshold $\thr\in(0,1)$.
+
+\paragraph{Honest and Byzantine judges.}
+Let $\Hset\subseteq[n]$ be the set of \emph{honest} judges and
+$\Bset=[n]\setminus\Hset$ the \emph{Byzantine} (compromised or colluding) judges, with
+$f=|\Bset|$ and $|\Hset|=n-f$. Honest judges execute the intended policy; Byzantine
+judges may return arbitrary, jointly chosen verdict vectors. We write $\alpha=f/n$ for
+the Byzantine fraction.
+
+\paragraph{Aggregation.}
+An \emph{aggregation rule} $\Agg:(\R^{d})^{n}\to\R^{d}$ maps the $n$ verdict vectors to a
+single aggregate $\uhat=\Agg(\verd_1,\dots,\verd_n)$; the agency's final decision is
+$\hat d=\dec(\uhat)$. We consider three rules from the Byzantine-robust family:
+\begin{itemize}[leftmargin=1.4em,itemsep=1pt,topsep=2pt]
+  \item \textbf{Coordinate-wise median} $\cmed$: $\pi_j(\uhat)=\operatorname{median}
+        \{\pi_j(\verd_1),\dots,\pi_j(\verd_n)\}$ for each coordinate $j$~\cite{yin2018byzantine}.
+  \item \textbf{Geometric median} $\gmed$: $\uhat=\arg\min_{\bm y\in\R^d}\sum_{k=1}^n
+        \lVert \bm y-\verd_k\rVert_2$, computed by a Weiszfeld
+        iteration~\cite{chen2017byzantine,pillutla2022rfa}.
+  \item \textbf{Krum selection} $\Krum$: $\uhat=\verd_{k^\star}$ with
+        $k^\star=\arg\min_k \sum_{j\in \mathcal N_k}\lVert \verd_k-\verd_j\rVert_2^2$,
+        where $\mathcal N_k$ indexes the $n-f-2$ nearest neighbours of
+        $k$~\cite{blanchard2017krum}.
+\end{itemize}
+Plain \textbf{majority vote} aggregates only the decisions,
+$\hat d=\mathbf 1\{\sum_k d_k>n/2\}$, and is our simplest baseline; it is the sign-vote
+special case of coordinate-wise median applied to $d_k$~\cite{bernstein2019signsgd}.
+
+\paragraph{Channels.}
+Each judge exposes two logically separate inputs: an \emph{instruction channel} carrying
+the operator's fixed policy prompt, and a \emph{data channel} carrying the untrusted
+payload $\pay$. \emph{Payload isolation} is the property that instructions appearing in
+the data channel do not alter the judge's control flow, realised by structured queries
+and delimiting~\cite{chen2024struq,hines2024spotlighting}; we make this precise in
+\cref{def:isolation}.
+
+\paragraph{Norms.}
+$\lVert\cdot\rVert$ denotes the Euclidean norm unless a subscript indicates otherwise.
+For a finite set $S$, $|S|$ is its cardinality. $\mathbf 1\{\cdot\}$ is the indicator.
+
+\begin{table}[t]
+\centering
+\caption{Notation.}
+\label{tab:notation}
+\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+Symbol & Meaning \\
+\midrule
+$n$ & number of judge agents in the committee \\
+$f,\;\alpha=f/n$ & number / fraction of Byzantine (compromised or colluding) judges \\
+$\Hset,\;\Bset$ & honest and Byzantine judge index sets, $|\Hset|=n-f$, $|\Bset|=f$ \\
+$\pay$ & inspected payload (candidate response and/or inter-agent message) \\
+$v_k=(d_k,\score_k,\emb_k)$ & verdict of judge $k$: decision, calibrated score, rationale embedding \\
+$\verd_k=(\score_k,\emb_k)\in\R^d$ & verdict vector, $d=1+m$; $\pi_1(\verd_k)=\score_k$ \\
+$\thr$ & block threshold; $\dec(\verd)=\mathbf 1\{\pi_1(\verd)\ge\thr\}$ \\
+$\Agg,\ \uhat$ & aggregation rule and aggregate verdict $\uhat=\Agg(\verd_1,\dots,\verd_n)$ \\
+$\cmed,\gmed,\Krum$ & coordinate-wise median, geometric median, Krum selection \\
+$\ustar$ & honest reference verdict (e.g.\ honest geometric median / consensus) \\
+$r$ & honest concentration radius, $\lVert\verd_k-\ustar\rVert\le r$ for $k\in\Hset$ \\
+$\gamma$ & decision margin, $|\pi_1(\ustar)-\thr|\ge\gamma$ \\
+$C_\alpha$ & robust-aggregation displacement constant (\cref{lem:gmedrobust}) \\
+$\rho$ & pairwise correlation of honest-judge errors (\cref{prop:correlated}) \\
+$\varepsilon$ & payload-isolation leakage (\cref{def:isolation}) \\
+\bottomrule
+\end{tabular}
+\end{table}

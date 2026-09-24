@@ -1,0 +1,72 @@
+\section{Complexity and the Security--Cost Frontier}
+\label{sec:complexity}
+
+\Aegis buys robustness by running a committee, and the idea is explicit that the cost of
+that committee may be unattractive at small $n$. We make the cost quantitative and pair it
+with the tolerance it purchases, so the trade-off is stated rather than hidden.
+
+\subsection{Token and API cost}
+Each request issues one hardened-judge call per committee member plus the Analyzer calls.
+Let $\ell_{\text{in}}$ and $\ell_{\text{out}}$ be the per-judge input and output token
+counts. The token cost per adjudication is
+\begin{equation}
+  \text{Tokens}(n) \;=\; n\,(\ell_{\text{in}}+\ell_{\text{out}}) \;+\; \text{Tokens}_{\text{analyze}},
+  \label{eq:tokencost}
+\end{equation}
+i.e.\ \emph{linear} in the committee size $n$, since judges are independent and the payload
+is broadcast unchanged. Payload isolation adds only the fixed delimiter overhead. This
+linearity is the cost the idea asks to quantify, and it is the reason $n$ is restricted to
+the range $1$--$7$: the token bill grows in lockstep with $n$ while, by \cref{lem:gmedrobust},
+the tolerated fault count grows only as $\lfloor (n-1)/2\rfloor$ (median rules) or
+$\lfloor (n-2)/2\rfloor$ (Krum).
+
+\subsection{Latency}
+In the parallel topology the judge calls overlap, so wall-clock latency is
+\begin{equation}
+  \text{Lat}_{\parallel}(n) \;=\; \max_{k\in[n]} \text{lat}(J_k) \;+\; \text{lat}(\Agg) \;+\; \text{lat}_{\text{analyze}},
+  \label{eq:latpar}
+\end{equation}
+dominated by the slowest judge plus a small aggregation term; in the sequential topology it
+is $\sum_k \text{lat}(J_k)+\text{lat}(\Agg)$, linear in $n$. The idea notes latency is
+``linear in the number of agents''; \cref{eq:latpar} shows this is the \emph{sequential}
+worst case and that parallel deployment reduces the judge contribution to a constant in $n$
+(at unchanged token cost), trading hardware concurrency for latency.
+
+\subsection{Aggregation cost}
+The three rules cost, per request, $O(nd)$ with an $O(n\log n)$ per-coordinate selection for
+$\cmed$; $O(Tnd)$ for $\gmed$ with $T$ Weiszfeld iterations~\cite{pillutla2022rfa}; and
+$O(n^2 d)$ for $\Krum$ from its pairwise distances~\cite{blanchard2017krum}. With $n\le 7$
+and modest embedding dimension $d=1+m$, all three are dominated by the LLM calls of
+\cref{eq:tokencost} and contribute negligibly to latency.
+
+\subsection{The frontier}
+Define the \emph{Byzantine tolerance fraction} $\alpha^\star(n)=\lfloor(n-1)/2\rfloor/n$ for
+median rules. \Cref{tab:cost} tabulates tolerance against the multiplicative token cost
+$n$. The security gain is discrete and, at small $n$, coarse: moving from $n=3$ (tolerates
+$f=1$) to $n=5$ (tolerates $f=2$) doubles neither cost-effectiveness nor tolerance cleanly.
+Whether a given operating point is worthwhile is an empirical question about the deployment's
+threat level and latency budget, which \cref{sec:experiments} is designed to answer rather
+than to presuppose.
+
+\begin{table}[t]
+\centering
+\caption{Security--cost frontier for median-type aggregation. Tolerance is the maximum $f$
+with $f<n/2$; token cost is the multiple of a single-judge call from \cref{eq:tokencost}
+(Analyzer overhead excluded). Small committees tolerate very few faults, the feasibility
+risk the idea flags as an open empirical question.}
+\label{tab:cost}
+\small
+\begin{tabular}{@{}cccc@{}}
+\toprule
+Committee $n$ & Max tolerated $f$ & Tolerance fraction $\alpha^\star$ & Token cost (\(\times\) single judge) \\
+\midrule
+1 & 0 & $0.00$ & $1$ \\
+2 & 0 & $0.00$ & $2$ \\
+3 & 1 & $0.33$ & $3$ \\
+4 & 1 & $0.25$ & $4$ \\
+5 & 2 & $0.40$ & $5$ \\
+6 & 2 & $0.33$ & $6$ \\
+7 & 3 & $0.43$ & $7$ \\
+\bottomrule
+\end{tabular}
+\end{table}

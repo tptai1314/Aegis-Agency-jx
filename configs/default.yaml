@@ -1,0 +1,24 @@
+# Default configuration for Aegis-Agency (synthetic mechanism validation).
+# All values here drive the synthetic verdict-space simulation, not real data.
+experiment:
+  n_judges: 5
+  rules: [cmed, gmed, krum]
+  margin: 0.25          # gamma: honest score separation from threshold (Assumption 2)
+  radius: 0.08          # r: honest concentration radius (Assumption 1)
+  correlation: 0.0      # rho: honest-error correlation (Proposition 3 / RQ4)
+  embedding_dim: 4      # m: rationale-embedding dimension; verdict dim d = 1 + m
+  threshold: 0.5        # tau (pre-calibration)
+  escalate_band: 0.0    # delta (Algorithm 1); 0 disables escalation
+  attack: compromise    # one of: none, compromise, collusion, injection, adaptive
+  f: 1                  # Byzantine judges
+  n_payloads: 400
+  unsafe_fraction: 0.5
+  calibrate: true
+  target_orr: 0.05
+  seed: 0
+
+# Real-data section (EC2 only). Left empty here; this repo never downloads data.
+data:
+  root: ""              # e.g. /data/harmbench  (place manually on EC2)
+  benchmark: ""         # e.g. harmbench | injecagent | advbench
+  split: test

@@ -1,0 +1,153 @@
+\section{Experimental Design}
+\label{sec:experiments}
+
+This section specifies the evaluation protocol. \textbf{The numerical entries in
+\cref{tab:main,tab:ablation} and the curves in \cref{fig:results} are placeholders that
+encode expected trends and fix the measurement procedure; they are not experimental
+results and must be replaced with measured values before submission.} No superiority claim
+is made on their basis. \Cref{fig:expsetup} summarises the design.
+
+\input{figures/tikz_experimental_setup.tex}
+
+\subsection{Research questions}
+\begin{description}[leftmargin=0em,itemsep=2pt,topsep=2pt]
+  \item[\textnormal{RQ1 (integrity under compromise).}] As the compromised/colluding
+        fraction $f/n$ grows to the tolerance boundary, how does \textsc{asr-uc} of \Aegis
+        compare with AutoDefense (single coordinator), a single hardened model, and plain
+        majority vote?
+  \item[\textnormal{RQ2 (second-order injection).}] Does payload isolation reduce the
+        verdict shift $\varepsilon$ (\cref{def:isolation}) induced by JudgeDeceiver-style
+        injection, and does it lower \textsc{asr-uc} when injection is combined with judge
+        compromise?
+  \item[\textnormal{RQ3 (adaptivity).}] How much does an attacker that optimises against
+        the specific aggregation rule increase \textsc{asr-uc} relative to a static
+        attacker, for each of $\cmed$, $\gmed$, $\Krum$, and majority vote?
+  \item[\textnormal{RQ4 (correlated failure).}] How does the homogeneous-vs-diverse
+        backbone choice affect the honest-error correlation $\rho$ and, through it,
+        \textsc{asr-uc} and \textsc{orr}?
+  \item[\textnormal{RQ5 (cost).}] What is the security-versus-cost frontier
+        (\cref{tab:cost}) in measured latency and token cost as $n$ grows from $1$ to $7$?
+  \item[\textnormal{RQ6 (utility).}] What is the over-refusal rate on benign traffic, and
+        how much benign utility is retained relative to no defense?
+\end{description}
+
+\subsection{Datasets and payloads}
+Adversarial payloads are drawn from established jailbreak and prompt-injection resources:
+in-the-wild jailbreak prompts~\cite{shen2023dan}, automated jailbreaks from
+GCG/AdvBench~\cite{zou2023universal}, PAIR~\cite{chao2023pair}, TAP~\cite{mehrotra2023tap},
+and GPTFuzzer~\cite{yu2023gptfuzzer}, evaluated within the HarmBench
+harness~\cite{mazeika2024harmbench}; prompt-injection and task-integrity payloads from the
+formal injection benchmark~\cite{liu2024formalizing}, InjecAgent~\cite{zhan2024injecagent},
+and universal injection~\cite{liu2024universal}. Benign traffic (for \textsc{orr} and
+utility) is drawn from instruction-following and QA distributions disjoint from the attack
+sets. Second-order injections against the judges are generated with
+JudgeDeceiver~\cite{shi2024judgeinjection}. Ground-truth labels $y^\star$ follow each
+benchmark's released annotations; task-integrity labels use the instruction-hierarchy
+criterion of~\cite{wallace2024instruction}.
+
+\subsection{Models and configurations}
+Judges and analyzers are instantiated on open backbones (Llama-3, Qwen2.5, Mistral) and
+proprietary backbones (GPT-4o, Claude-3.5), in \emph{homogeneous} committees (all judges
+share a backbone) and \emph{diverse} committees (backbones and prompts varied). Judges are
+hardened by SecAlign-style preference optimisation~\cite{chen2025secalign} and
+StruQ-style structured-input training~\cite{chen2024struq}; scores are
+temperature-calibrated~\cite{guo2017calibration}; rationale embeddings use a fixed
+sentence encoder~\cite{reimers2019sentencebert}. Committee size sweeps $n\in\{1,\dots,7\}$.
+
+\subsection{Baselines}
+\begin{enumerate}[leftmargin=1.6em,itemsep=1pt,topsep=2pt]
+  \item \textbf{AutoDefense}~\cite{zeng2024autodefense}: multi-agent filter with a single
+        Coordinator (no Byzantine tolerance, no payload isolation).
+  \item \textbf{Single hardened model}~\cite{chen2025secalign}: one SecAlign judge
+        (the ``component-3-alone'' baseline of \cref{sec:rationale}).
+  \item \textbf{Plain majority vote}: committee with decision-only aggregation
+        (\cref{sec:prelim}).
+\end{enumerate}
+Secondary reference points for context, not head-to-head superiority claims, include
+single-model guardrails~\cite{robey2023smoothllm,jain2023baseline} and content
+moderators~\cite{inan2023llamaguard,zeng2024shieldgemma}.
+
+\subsection{Attacks (adaptive by construction)}
+\begin{enumerate}[leftmargin=1.6em,itemsep=1pt,topsep=2pt]
+  \item \textbf{Compromised judge:} $f$ judges return adversary-chosen verdict vectors.
+  \item \textbf{Colluding defenders:} the $f$ Byzantine judges coordinate to stay within
+        the honest spread while biasing the aggregate, mirroring
+        ``a-little-is-enough''~\cite{baruch2019little}.
+  \item \textbf{Second-order payload injection:} JudgeDeceiver~\cite{shi2024judgeinjection}
+        embeds instructions in the payload to shift honest verdicts.
+  \item \textbf{Adaptive-on-aggregation:} the attacker optimises against the specific rule,
+        as inner-product manipulation~\cite{xie2019fall} and local model
+        poisoning~\cite{fang2020poisoning} do against Krum/median.
+\end{enumerate}
+The colluding fraction is swept from independent single compromise to the boundary
+$2f{+}2<n$; each attack is run in static and adaptive variants.
+
+\subsection{Metrics}
+Defense success rate; \textsc{asr-uc}\,\eqref{eq:asruc} and targeted-\textsc{asr};
+over-refusal rate \textsc{orr}\,\eqref{eq:orr}; Byzantine tolerance fraction; detection
+F1/AUROC of malicious verdicts (treating aggregation as an outlier detector); latency
+(\cref{eq:latpar}); token/API cost (\cref{eq:tokencost}); and benign utility retention.
+We additionally report the measured honest radius $r$, margin $\gamma$, and correlation
+$\rho$, since \cref{thm:integrity,prop:correlated} predict behaviour through exactly these
+quantities.
+
+\subsection{Ablations}
+Robust aggregation on/off (vs.\ single coordinator); payload isolation on/off; hardened
+judges on/off; committee size $n\in\{1,\dots,7\}$; colluding fraction; and homogeneous vs.\
+diverse backbones (the correlated-failure test for RQ4). Each ablation isolates one of the
+four components of \cref{sec:method}.
+
+\subsection{Reproducibility checklist}
+Fixed random seeds and per-request isolation nonces logged; exact backbone
+versions/checkpoints and decoding parameters recorded; attack budgets (queries, iterations)
+fixed per benchmark; aggregation tolerances ($\eta$ for $\gmed$, assumed $f$ for $\Krum$)
+reported; all placeholder cells replaced with mean $\pm$ standard deviation over seeds and,
+where comparisons are drawn, an explicit significance test; released code and payload
+manifests. No result is to be reported without its measurement conditions.
+
+\subsection{Placeholder result templates}
+\Cref{tab:main,tab:ablation} and \cref{fig:results} give the shape of the intended
+reporting. Every cell reads ``--'' and every curve is labelled a conceptual expected trend.
+
+\input{figures/pgfplots_placeholder_results.tex}
+
+\begin{table}[t]
+\centering
+\caption{\emph{Placeholder / expected-trend template; replace with measured results before
+submission.} Main comparison at fixed diverse-backbone committee. Lower \textsc{asr-uc} and
+\textsc{orr} are better. No numbers are filled because none have been measured.}
+\label{tab:main}
+\small
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Method & $n$ & \textsc{asr-uc}$(f{=}1)$ & \textsc{asr-uc}$(f{=}2)$ & \textsc{orr} & Tokens ($\times$) \\
+\midrule
+Single hardened model~\cite{chen2025secalign} & 1 & -- & n/a & -- & $1$ \\
+AutoDefense (single coord.)~\cite{zeng2024autodefense} & 3 & -- & -- & -- & $3$ \\
+Plain majority vote & 5 & -- & -- & -- & $5$ \\
+\Aegis\ ($\cmed$) & 5 & -- & -- & -- & $5$ \\
+\Aegis\ ($\gmed$) & 5 & -- & -- & -- & $5$ \\
+\Aegis\ ($\Krum$) & 5 & -- & -- & -- & $5$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{\emph{Placeholder / expected-trend template; replace with measured results before
+submission.} Ablation over the four components; each row disables one mechanism relative to
+full \Aegis. Cells are intentionally empty.}
+\label{tab:ablation}
+\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Configuration & Robust agg.\ & Isolation & Hardened judges & \textsc{asr-uc}$(f{=}1)$ \\
+\midrule
+Full \Aegis & \checkmark & \checkmark & \checkmark & -- \\
+$-$ robust aggregation (single coord.) & & \checkmark & \checkmark & -- \\
+$-$ payload isolation & \checkmark & & \checkmark & -- \\
+$-$ hardened judges & \checkmark & \checkmark & & -- \\
+$-$ all (AutoDefense-like) & & & & -- \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,52 @@
+% figures/tikz_experimental_setup.tex  ->  \cref{fig:expsetup}
+\begin{figure}[t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[node distance=6mm and 14mm]
+
+% ---- inputs: datasets ----
+\node[infra] (d1) {\icondoc[aegisGray]\ jailbreak:\\ DAN, GCG, PAIR, TAP};
+\node[infra, below=of d1] (d2) {\icondoc[aegisGray]\ injection:\\ InjecAgent, formal};
+\node[infra, below=of d2] (d3) {\icondoc[aegisGray]\ benign traffic};
+\begin{scope}[on background layer]
+  \node[group, fit=(d1)(d2)(d3), label={[grouplabel]above:datasets / payloads}] (din) {};
+\end{scope}
+
+% ---- system under test ----
+\node[honest, right=16mm of d2] (sut)
+  {\iconshield[aegisBlue]\\ system under test:\\ \Aegis\ ($n{=}1\!-\!7$)\\ $\cmed/\gmed/\Krum$};
+
+% ---- attacks (red) ----
+\node[adv, above=10mm of sut] (atk)
+  {\iconattacker[aegisRed]\\ attacks: compromised,\\ colluding, 2nd-order,\\ adaptive-on-agg};
+
+% ---- baselines (blue, below) ----
+\node[honest, below=10mm of sut] (base)
+  {baselines: AutoDefense,\\ single SecAlign,\\ majority vote};
+
+% ---- metrics / outputs ----
+\node[theory, right=16mm of sut, yshift=7mm] (m1)
+  {metrics: ASR-UC,\\ ORR, tol.\ fraction,\\ F1/AUROC};
+\node[theory, below=5mm of m1] (m2)
+  {cost: latency,\\ tokens};
+\node[infra, right=14mm of m1, yshift=-7mm] (out)
+  {tables \& plots\\ (\cref{tab:main}, \cref{fig:results})};
+
+% ===== flows =====
+\draw[dataflow] (din.east) -- (sut.west) node[elabel,midway]{payloads};
+\draw[advflow]  (atk.south) -- (sut.north);
+\draw[dataflow] (base.north) -- (sut.south) node[elabel,midway]{compare};
+\draw[dataflow] (sut.east) -- (m1.west);
+\draw[dataflow] (sut.east) -- (m2.west);
+\draw[dataflow] (m1.east) -- (out.west);
+\draw[dataflow] (m2.east) -| (out.south);
+
+\end{tikzpicture}}
+\caption{Experimental setup (\cref{sec:experiments}). Datasets and benign traffic (gray)
+feed the system under test, \Aegis\ with committee size $1$--$7$ and one of three
+aggregation rules (blue). Attacks (red) exercise the four adaptive threat classes; baselines
+(blue, below) provide the comparison points. Outputs are the security and cost metrics
+(purple) collected into the result tables and plots. All reported numbers are placeholders
+until measured.}
+\label{fig:expsetup}
+\end{figure}

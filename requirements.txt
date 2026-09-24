@@ -1,0 +1,10 @@
+# Runtime dependencies (lightweight; no GPU, no network needed for tests/demo).
+numpy>=1.24
+pyyaml>=6.0
+matplotlib>=3.7
+
+# Development / testing (install with: pip install -e ".[dev]")
+# pytest>=7.4
+# ruff>=0.4
+# mypy>=1.8
+# pandas>=2.0

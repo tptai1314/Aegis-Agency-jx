@@ -1,0 +1,153 @@
+\section{Proofs}
+\label{app:proofs}
+
+This appendix gives the complete proofs of the results marked complete in \cref{sec:theory}
+and the deferred specialisations of the sketched results.
+
+\subsection{Proof of \cref{lem:gmedrobust} (geometric-median displacement)}
+\begin{proof}
+Let $\uhat=\arg\min_{\bm y\in\R^d} F(\bm y)$ with $F(\bm y)=\sum_{k=1}^n\lVert \bm
+y-\verd_k\rVert$, the geometric median. Optimality gives $F(\uhat)\le F(\ustar)$, i.e.
+\begin{equation}
+  \sum_{k\in\Hset}\lVert\uhat-\verd_k\rVert + \sum_{k\in\Bset}\lVert\uhat-\verd_k\rVert
+  \;\le\;
+  \sum_{k\in\Hset}\lVert\ustar-\verd_k\rVert + \sum_{k\in\Bset}\lVert\ustar-\verd_k\rVert .
+  \label{eq:opt}
+\end{equation}
+Rearranging \cref{eq:opt},
+\begin{equation}
+  \sum_{k\in\Hset}\bigl(\lVert\uhat-\verd_k\rVert-\lVert\ustar-\verd_k\rVert\bigr)
+  \;\le\;
+  \sum_{k\in\Bset}\bigl(\lVert\ustar-\verd_k\rVert-\lVert\uhat-\verd_k\rVert\bigr).
+  \label{eq:rearr}
+\end{equation}
+For the right-hand side, the reverse triangle inequality gives, for every $k$,
+$\lVert\ustar-\verd_k\rVert-\lVert\uhat-\verd_k\rVert\le\lVert\ustar-\uhat\rVert$, hence
+\begin{equation}
+  \text{RHS of \eqref{eq:rearr}} \;\le\; |\Bset|\,\lVert\ustar-\uhat\rVert = f\,\lVert\uhat-\ustar\rVert.
+  \label{eq:rhs}
+\end{equation}
+For the left-hand side, fix an honest $k\in\Hset$. By the triangle inequality
+$\lVert\uhat-\verd_k\rVert\ge\lVert\uhat-\ustar\rVert-\lVert\ustar-\verd_k\rVert$, and since
+$\lVert\ustar-\verd_k\rVert\le r$ (\cref{ass:concentration}),
+\begin{equation}
+  \lVert\uhat-\verd_k\rVert-\lVert\ustar-\verd_k\rVert
+  \;\ge\; \lVert\uhat-\ustar\rVert - \lVert\ustar-\verd_k\rVert - \lVert\ustar-\verd_k\rVert
+  \;\ge\; \lVert\uhat-\ustar\rVert - 2r .
+  \label{eq:lhsterm}
+\end{equation}
+Summing \cref{eq:lhsterm} over the $|\Hset|=n-f$ honest judges,
+\begin{equation}
+  \text{LHS of \eqref{eq:rearr}} \;\ge\; (n-f)\bigl(\lVert\uhat-\ustar\rVert-2r\bigr).
+  \label{eq:lhs}
+\end{equation}
+Combining \cref{eq:rhs,eq:lhs} with \cref{eq:rearr},
+\begin{equation}
+  (n-f)\bigl(\lVert\uhat-\ustar\rVert-2r\bigr)\;\le\; f\,\lVert\uhat-\ustar\rVert
+  \;\;\Longrightarrow\;\;
+  (n-2f)\,\lVert\uhat-\ustar\rVert \;\le\; 2(n-f)\,r .
+\end{equation}
+Since $f<n/2$ we have $n-2f>0$, so dividing yields
+$\lVert\uhat-\ustar\rVert\le \frac{2(n-f)}{n-2f}\,r = C_\alpha r$ with
+$\alpha=f/n$. The Byzantine verdicts entered only through \cref{eq:rhs}, where the bound is
+independent of their values, so the displacement bound holds for arbitrary Byzantine
+$\{\verd_k\}_{k\in\Bset}$. \qedhere
+\end{proof}
+
+\begin{remark}
+The constant $C_\alpha=\tfrac{2(1-\alpha)}{1-2\alpha}$ is a \emph{sufficient} displacement
+bound, consistent with the breakdown point $\tfrac12$ of the geometric
+median~\cite{lopuhaa1991breakdown,minsker2015geometric}. We make no optimality or matching
+claim: a smaller constant may hold under additional assumptions, and the divergence as
+$\alpha\to\tfrac12$ is intrinsic to any minority-tolerance estimator.
+\end{remark}
+
+\subsection{Proof of \cref{thm:integrity} (decision integrity)}
+\begin{proof}
+By \cref{lem:gmedrobust} (for $\gmed$) the aggregate satisfies
+$\lVert\uhat-\ustar\rVert\le C_\alpha r$. The score coordinate is a $1$-Lipschitz
+projection, $|\pi_1(\uhat)-\pi_1(\ustar)|\le\lVert\uhat-\ustar\rVert\le C_\alpha r$. By
+\cref{ass:margin}, $\pi_1(\ustar)$ lies at distance at least $\gamma$ from the threshold
+$\thr$. If $\gamma>C_\alpha r$ (\cref{eq:integritycond}), then $\pi_1(\uhat)$ stays on the
+same side of $\thr$ as $\pi_1(\ustar)$:
+\begin{equation}
+  \pi_1(\ustar)\ge\thr+\gamma \Rightarrow \pi_1(\uhat)\ge \thr+\gamma-C_\alpha r>\thr,
+  \qquad
+  \pi_1(\ustar)\le\thr-\gamma \Rightarrow \pi_1(\uhat)\le \thr-\gamma+C_\alpha r<\thr .
+\end{equation}
+Hence $\dec(\uhat)=\mathbf 1\{\pi_1(\uhat)\ge\thr\}=\mathbf 1\{\pi_1(\ustar)\ge\thr\}
+=\dec(\ustar)=y^\star(\pay)$, for every choice of the Byzantine verdicts. Both directions
+are covered: the payload the honest committee would block is blocked (no forced pass), and
+the one it would allow is allowed (no forced block). \qedhere
+\end{proof}
+
+\begin{proof}[Proof of \cref{cor:availability}]
+The two implications in the proof of \cref{thm:integrity} are symmetric in the sign of
+$\pi_1(\ustar)-\thr$; the second implication is exactly the statement that a benign payload
+($\pi_1(\ustar)\le\thr-\gamma$, so $\dec(\ustar)=0$) cannot be pushed to $\hat d=1$ by the
+Byzantine judges. \qedhere
+\end{proof}
+
+\subsection{Proof of \cref{prop:cmed} (coordinate-wise median)}
+\begin{proof}
+Fix a coordinate $j$ and consider the $n$ scalars $\{\pi_j(\verd_k)\}_{k\in[n]}$, of which
+at most $f$ are Byzantine. Let $a=\min_{k\in\Hset}\pi_j(\verd_k)$ and
+$b=\max_{k\in\Hset}\pi_j(\verd_k)$ be the honest range. Among all $n$ values, at least
+$n-f>n/2$ lie in $[a,b]$. A median (any order statistic of rank $\lceil n/2\rceil$ or
+$\lfloor n/2\rfloor+1$) of $n$ numbers of which strictly more than half lie in $[a,b]$ must
+itself lie in $[a,b]$: fewer than $n/2$ values lie strictly below $a$ and fewer than $n/2$
+strictly above $b$, so the middle order statistic is bracketed. Thus
+$\pi_j(\uhat)\in[a,b]$. For $j=1$ (score), $a,b\in[\pi_1(\ustar)-r,\pi_1(\ustar)+r]$ by
+\cref{ass:concentration}, giving $|\pi_1(\uhat)-\pi_1(\ustar)|\le r$. Substituting the
+displacement $r$ (i.e.\ $C_\alpha=1$) into the margin argument of \cref{thm:integrity}
+yields the decision guarantee whenever $\gamma>r$. \qedhere
+\end{proof}
+
+\subsection{Proof of \cref{prop:isolation} (isolation containment)}
+\begin{proof}
+Fix an honest judge $k$ with verdict law $P_k(\cdot\mid c,\pay)$. Its decision is the event
+$A=\{v:\dec=1\}$. By $\varepsilon$-isolation (\cref{def:isolation}),
+$|P_k(A\mid c,\pay)-P_k(A\mid c,\pay')|\le\operatorname{TV}(P_k(\cdot\mid c,\pay),
+P_k(\cdot\mid c,\pay'))\le\varepsilon$, so the injection changes judge $k$'s decision
+probability by at most $\varepsilon$; the probability it flips a fixed drawn decision is at
+most $\varepsilon$. If honest judges draw independently, the number of flipped honest
+decisions is stochastically dominated by a $\mathrm{Binomial}(n-f,\varepsilon)$, whence
+$\Prob[\text{more than }t\text{ flips}]\le\binom{n-f}{t+1}\varepsilon^{t+1}$ by the union
+bound over $(t{+}1)$-subsets. When $\varepsilon=0$ every honest verdict law is invariant to
+the injection, so no honest verdict changes and the attacker must instead corrupt judges
+directly, which is a Byzantine action counted in $f$ and governed by \cref{thm:integrity}.
+\qedhere
+\end{proof}
+
+\subsection{Proof of \cref{prop:correlated} (correlated honest failure)}
+\begin{proof}
+Let $\{Z_k\}_{k\in\Hset}$ be exchangeable Bernoulli$(\mu)$ with
+$\operatorname{Corr}(Z_i,Z_j)=\rho$ for $i\ne j$, so
+$\operatorname{Cov}(Z_i,Z_j)=\rho\,\mu(1-\mu)$. With $N=n-f$ and
+$\bar Z=\frac1N\sum_{k}Z_k$,
+\begin{equation}
+  \operatorname{Var}(\bar Z)
+  = \frac{1}{N^2}\Bigl(\sum_k\operatorname{Var}(Z_k) + \sum_{i\ne j}\operatorname{Cov}(Z_i,Z_j)\Bigr)
+  = \frac{1}{N^2}\Bigl(N\mu(1-\mu) + N(N-1)\rho\,\mu(1-\mu)\Bigr),
+\end{equation}
+which simplifies to $\operatorname{Var}(\bar Z)=\mu(1-\mu)\bigl[\tfrac{1-\rho}{N}+\rho\bigr]$,
+proving \cref{eq:corrvar}. As $N\to\infty$ the first term vanishes and
+$\operatorname{Var}(\bar Z)\to\mu(1-\mu)\rho$, which is strictly positive for
+$\rho\in(0,1]$ and $\mu\in(0,1)$; the sample mean does not concentrate at $\mu$. For the
+majority-failure lower bound, a correct honest majority requires $\bar Z>\tfrac12$. If
+$\mu\le\tfrac12$ then $\{\bar Z>\tfrac12\}\subseteq\{\bar Z-\mu>\tfrac12-\mu\}$ and, when
+$\mu<\tfrac12$, Chebyshev gives
+$\Prob[\bar Z>\tfrac12]\le \Prob[|\bar Z-\mu|\ge\tfrac12-\mu] \le
+\frac{\operatorname{Var}(\bar Z)}{(\tfrac12-\mu)^2}$. As $N\to\infty$ this upper bound tends
+to $\frac{\mu(1-\mu)\rho}{(\tfrac12-\mu)^2}$, a constant independent of $N$; hence for
+$\rho>0$ the honest majority cannot be made correct with probability approaching one merely
+by enlarging the committee. Reducing $\rho$ (through backbone/prompt diversity) is the only
+term in \cref{eq:corrvar} that restores $1/N$-style concentration. \qedhere
+\end{proof}
+
+\begin{remark}
+The bound is one-sided and asymptotic in $N$; it establishes that correlation imposes a
+$\rho$-dependent floor on committee variance, which is the formal content of the idea's
+``vacuous if all judges fail identically.'' It is a limiting-case impossibility for the
+honest majority, not a defense, and we present it as such.
+\end{remark}

@@ -1,0 +1,49 @@
+\section{Limitations}
+\label{sec:limitations}
+
+We state the limitations plainly; several are structural and bound what the approach can
+claim.
+
+\paragraph{Conditional, not unconditional, guarantees.}
+\Cref{thm:integrity} holds only when honest judges concentrate ($r$ small) and the decision
+margin is large ($\gamma>C_\alpha r$). Neither is guaranteed in deployment: ambiguous
+payloads, shared systematic biases~\cite{zheng2023judging,wang2023notfair}, and
+near-boundary policies can violate both. The theorem does not certify security; it converts
+security into measurable preconditions.
+
+\paragraph{Small committees tolerate few faults.}
+With $n\in\{3,4,5\}$ the tolerance is $f\in\{1,1,2\}$ (\cref{tab:cost}). Whether tolerating
+a single compromised judge is meaningful robustness for a given deployment is an empirical
+and threat-model question, not one the theory settles. Large committees are the natural
+answer but multiply token and latency cost linearly (\cref{sec:complexity}).
+
+\paragraph{Correlated failure is mitigated, not solved.}
+\Cref{prop:correlated} shows that once honest errors are correlated, added judges stop
+helping; diversity reduces but does not eliminate $\rho$, and the required diversity may be
+hard to achieve when strong judges cluster on a few backbones. The limiting case of
+identical failure across all judges is explicitly out of scope.
+
+\paragraph{Adaptive attacks may enlarge the effective radius.}
+A colluding committee that keeps its verdicts within the honest spread does not break
+\cref{thm:integrity} but enlarges the effective $r$, and history shows adaptive attackers
+find such
+strategies against robust aggregators~\cite{baruch2019little,fang2020poisoning,xie2019fall}.
+Our evaluation is adaptive, but no finite adaptive suite proves robustness against all
+future attacks.
+
+\paragraph{Isolation leakage is empirical.}
+\Cref{prop:isolation} is conditional on the measured leakage $\varepsilon$; perfect
+isolation is an idealisation. A judge whose fine-tuning is imperfect will have
+$\varepsilon>0$, reopening a fraction of the second-order surface.
+
+\paragraph{Embedding-space assumptions.}
+Aggregating rationale embeddings assumes the encoder separates honest from manipulated
+justifications; a colluder that produces honest-looking rationales for a dishonest verdict
+stresses this assumption, and encoder robustness is itself an attack surface we do not fully
+characterise.
+
+\paragraph{Placeholder evaluation.}
+The reported tables and plots are protocol templates, not measurements. Every quantitative
+claim about \Aegis's effectiveness is therefore pending the experiments of
+\cref{sec:experiments}; the contribution at this stage is the threat model, architecture,
+and analysis, together with a falsifiable evaluation plan.

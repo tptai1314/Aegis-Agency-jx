@@ -1,0 +1,69 @@
+{
+  "source": "idea.pdf / idea.tex, Idea_05_AegisAgency (read in full; PDF and tex identical)",
+  "required_core_terms": [
+    "Aegis-Agency",
+    "multi-agent defense pipeline",
+    "Byzantine-robust verdict aggregation",
+    "prompt injection",
+    "second-order injection",
+    "compromised or colluding internal defenders",
+    "insider compromise",
+    "jailbreak",
+    "task-integrity",
+    "payload isolation",
+    "hardened judge agents",
+    "adaptive attacks",
+    "over-refusal",
+    "correlated failure",
+    "backbone diversity",
+    "security-vs-cost frontier"
+  ],
+  "required_equations": [
+    "2f + 2 < n (Krum tolerance condition)",
+    "f < n/2 (median-family tolerance condition)",
+    "verdict v_k = (decision d_k, calibrated score s_k, rationale embedding e_k)",
+    "at least n - f honest judges",
+    "latency and token/API cost linear in n (judge calls)"
+  ],
+  "required_algorithm_names": [
+    "Aegis-Agency (architecture)",
+    "Krum / multi-Krum-style selection over verdicts",
+    "coordinate-wise median",
+    "geometric median",
+    "plain majority vote (baseline rule)"
+  ],
+  "required_theorem_directions": [
+    "Under 2f+2 < n and honest-verdict concentration, up to f Byzantine judges cannot force an adversarial aggregate verdict in the semantic verdict space (to be proven, not assumed)",
+    "Median/geometric-median rules: f < n/2 Byzantine judges cannot move the aggregate outside/far from the honest range (decision integrity and availability)",
+    "Correlated judge failures degrade or void the tolerance guarantee as inter-judge error correlation grows",
+    "Cost: judge calls, tokens, latency scale linearly in n; aggregation overhead polynomial in n and embedding dimension"
+  ],
+  "required_experiment_variables": [
+    "number of judges n in 1..7",
+    "Byzantine/colluding fraction f/n swept to the 2f+2<n boundary",
+    "backbones: Llama-3, Qwen2.5, Mistral, GPT-4o, Claude-3.5",
+    "homogeneous vs diverse committees",
+    "attacks: compromised judge, colluding defenders, second-order payload injection, adaptive attack on aggregation",
+    "static vs adaptive attackers",
+    "ablations: robust aggregation on/off, payload isolation on/off, hardened judges on/off",
+    "metrics: defense success rate, ASR-under-compromise, targeted-ASR, false-positive/over-refusal rate, Byzantine tolerance fraction, detection F1/AUROC, latency, token/API cost, utility retention"
+  ],
+  "required_baselines": [
+    "AutoDefense (single Coordinator)",
+    "single hardened model (SecAlign)",
+    "plain majority vote"
+  ],
+  "forbidden_topic_drifts": [
+    "federated learning as the object of study",
+    "over-the-air / analog aggregation / wireless channels",
+    "differential privacy as a goal or mechanism",
+    "mechanism design, incentives, auctions, payments",
+    "blockchain or BFT state-machine-replication protocol design",
+    "watermarking",
+    "new jailbreak attack as the contribution",
+    "single-model hardening as the contribution",
+    "multimodal or embodied agents as the setting",
+    "reinforcement learning",
+    "claiming reduced ASR equals provable security"
+  ]
+}

@@ -1,0 +1,57 @@
+% figures/tikz_theory_diagram.tex  ->  \cref{fig:theory}
+\begin{figure}[t]
+\centering
+\resizebox{0.98\textwidth}{!}{%
+\begin{tikzpicture}[node distance=7mm and 15mm]
+
+% ---- assumptions (purple, left column) ----
+\node[theory] (a1) {\textbf{A\ref{ass:concentration}}\\ honest\\ concentration $r$};
+\node[theory, below=of a1] (a2) {\textbf{A\ref{ass:margin}}\\ decision\\ margin $\gamma$};
+\node[theory, below=of a2] (a3) {\textbf{A\ref{ass:fraction}}\\ $f<n/2$ \ /\\ $2f{+}2<n$};
+\node[theory, below=of a3] (aiso) {$\varepsilon$-isolation\\ (\cref{def:isolation})};
+
+\begin{scope}[on background layer]
+  \node[group, fit=(a1)(a2)(a3)(aiso), label={[grouplabel]above:assumptions}] {};
+\end{scope}
+
+% ---- lemmas (middle) ----
+\node[defense, right=20mm of a1, yshift=-4mm] (lem1)
+  {\textbf{\cref{lem:gmedrobust}}\\ gmed displacement\\ $\lVert\uhat-\ustar\rVert\le C_\alpha r$};
+\node[defense, below=13mm of lem1] (lem2)
+  {\textbf{\cref{lem:krum}}\\ Krum selection\\ (restated)};
+
+% ---- theorems (right) ----
+\node[honest, right=20mm of lem1] (thm1)
+  {\textbf{\cref{thm:integrity}}\\ decision\\ integrity};
+\node[honest, below=9mm of thm1] (propc)
+  {\textbf{\cref{prop:cmed}}\\ coord.\ median};
+\node[honest, below=9mm of propc] (propiso)
+  {\textbf{\cref{prop:isolation}}\\ injection\\ containment};
+
+% ---- corollary / outcomes (far right) ----
+\node[infra, right=15mm of thm1] (cor)
+  {\textbf{\cref{cor:availability}}\\ availability};
+\node[adv, below=16mm of cor] (corr)
+  {\textbf{\cref{prop:correlated}}\\ correlated\\ failure floor};
+
+% ===== theory dependency flow (purple dashed) =====
+\draw[theoryflow] (a1.east) -- (lem1.west);
+\draw[theoryflow] (a3.east) -| (lem1.south);
+\draw[theoryflow] (a3.east) -- (lem2.west);
+\draw[theoryflow] (lem1.east) -- (thm1.west);
+\draw[theoryflow] (a2.east) -| ($(thm1.south west)+(-4mm,0)$) |- (thm1.south);
+\draw[theoryflow] (a1.east) |- (propc.west);
+\draw[theoryflow] (aiso.east) -- (propiso.west);
+\draw[theoryflow] (thm1.east) -- (cor.west);
+\draw[theoryflow] (a1.east) |- (corr.west)
+  node[elabel,pos=0.85]{$\rho\!\uparrow$ voids $r$};
+
+\end{tikzpicture}}
+\caption{Theory dependency graph. Assumptions (purple) feed lemmas (green), which feed
+theorems and propositions (blue); the availability corollary (gray) and the correlated-failure
+floor (red, a limiting-case impossibility that \emph{voids} the concentration assumption)
+are downstream. Routed orthogonal connectors avoid diagonal clutter; the only annotated
+edge notes that rising error correlation $\rho$ invalidates the honest radius $r$ that
+\cref{lem:gmedrobust,thm:integrity} require.}
+\label{fig:theory}
+\end{figure}

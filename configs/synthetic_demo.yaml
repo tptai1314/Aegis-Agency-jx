@@ -1,0 +1,18 @@
+# Fast synthetic smoke-test demo configuration.
+# Produces synthetic smoke-test outputs only, NOT paper results.
+experiment:
+  n_judges: 5
+  rules: [cmed, gmed, krum]
+  margin: 0.25
+  radius: 0.08
+  correlation: 0.1
+  embedding_dim: 4
+  threshold: 0.5
+  escalate_band: 0.0
+  attack: compromise
+  f: 1
+  n_payloads: 240      # small for a quick demo
+  unsafe_fraction: 0.5
+  calibrate: true
+  target_orr: 0.05
+  seed: 7

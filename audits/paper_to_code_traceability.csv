@@ -1,0 +1,45 @@
+paper_section,page_or_algorithm_or_equation,paper_object,implementation_file,class_or_function_name,test_file,implementation_status,notes
+Preliminaries,Eq. (1),Verdict v_k=(d_k,s_k,e_k),src/aegis_agency/data/schemas.py,Verdict,tests/test_schemas.py,implemented,Dataclass with score-in-[0,1] and finite-embedding validation
+Preliminaries,Eq. (2),Verdict vector u_k=(s_k,e_k) in R^d,src/aegis_agency/data/schemas.py,Verdict.vector / verdict_vector,tests/test_schemas.py,implemented,d = 1 + m; decision D(u)=1{pi_1(u)>=tau}
+Section 6.3,Alg. 2,Coordinate-wise median,src/aegis_agency/methods/aggregators.py,coordinate_median,tests/test_core_algorithms.py,implemented,np.median per coordinate; Prop. 1 bracketing
+Section 6.3 / Lemma 1,Alg. 2,Geometric median (Weiszfeld),src/aegis_agency/methods/aggregators.py,geometric_median,tests/test_core_algorithms.py,implemented,Smoothed Weiszfeld with eta floor; approximation vs exact-median noted
+Section 6.3 / Lemma 2,Alg. 2,Krum selection,src/aegis_agency/methods/aggregators.py,krum,tests/test_core_algorithms.py,implemented,n-f-2 neighbours; warns when 2f+2>=n; Lemma 2 constant not re-derived
+Section 6.3,Section 6.3,Plain majority vote,src/aegis_agency/methods/aggregators.py,majority_vote,tests/test_core_algorithms.py,implemented,Strict '>' per paper; tie policy exposed (paper ambiguity)
+Algorithm 1,Alg. 1,Aegis adjudication gate,src/aegis_agency/methods/gate.py,AegisGate.adjudicate,tests/test_calibration_gate.py,implemented,analyze->isolate->judge->aggregate->allow/block/escalate
+Algorithm 1,Alg. 1 line 11,Escalation band delta,src/aegis_agency/methods/gate.py,AegisGate.adjudicate,tests/test_calibration_gate.py,implemented,Escalate when |score-tau|<delta; defaults to safe side
+Section 6.1 / Def. 1,Def. 1,epsilon-isolation,src/aegis_agency/judges/isolation.py,IsolationModel,tests/test_attacks.py,implemented_with_synthetic_demo,Parametric leakage model; real epsilon measured on EC2 (RQ2)
+Section 6.2,Section 6.2,Hardened judges,src/aegis_agency/data/adapters.py,LLMJudgeAdapter,,adapter_stub_waiting_for_external_dependency,Real SecAlign/StruQ backbones on EC2
+Section 6.2,Section 6.2,Score calibration (temperature),src/aegis_agency/methods/calibration.py,temperature_scale,tests/test_calibration_gate.py,implemented,Guo et al. temperature scaling
+Section 5 / Assumptions,Assumptions 1-2,Honest concentration r and margin gamma,src/aegis_agency/judges/synthetic_judges.py,SyntheticJudgePopulation,tests/test_synthetic_data.py,implemented_with_synthetic_demo,Parametric; real r,gamma measured on EC2
+Section 5.3,capability i,Compromised-judge attack,src/aegis_agency/attacks/compromise.py,CompromisedJudgeAttack,tests/test_attacks.py,implemented,f Byzantine verdicts pushed to target decision
+Section 5.3 / Appendix B,capability iii,Colluding defenders (a-little-is-enough),src/aegis_agency/attacks/collusion.py,CollusionAttack,tests/test_attacks.py,implemented,Within-radius coordinated bias
+Section 5.3 / Prop. 2,capability ii,Second-order injection,src/aegis_agency/attacks/injection.py,SecondOrderInjectionAttack,tests/test_attacks.py,implemented_with_synthetic_demo,epsilon-leakage model; real via JudgeDeceiver adapter
+Section 5.3,capability iii,Adaptive-on-aggregation attack,src/aegis_agency/attacks/adaptive.py,AdaptiveAggregationAttack,tests/test_attacks.py,implemented,Directional manipulation surrogate (heuristic, not claimed optimal)
+Problem Formulation,Eq. (4),ASR-under-compromise,src/aegis_agency/metrics/metrics.py,asr_under_compromise,tests/test_metrics.py,implemented,Guarded denominator; escalation policy explicit
+Problem Formulation,Eq. (5),Over-refusal rate,src/aegis_agency/metrics/metrics.py,over_refusal_rate,tests/test_metrics.py,implemented,Guarded denominator
+Section 10,Section 10,Defense success rate,src/aegis_agency/metrics/metrics.py,defense_success_rate,tests/test_metrics.py,implemented,
+Section 10 / Table 4,Table 4,Byzantine tolerance fraction,src/aegis_agency/metrics/metrics.py,byzantine_tolerance_fraction,tests/test_metrics.py,implemented,Median floor((n-1)/2)/n; Krum via 2f+2<n
+Section 10,Section 10,Detection F1/AUROC of malicious verdicts,src/aegis_agency/metrics/metrics.py,malicious_verdict_detection,tests/test_metrics.py,implemented,Dependency-free rank-sum AUROC; verdict-to-aggregate distance as score
+Section 10,Section 10,Utility retention,src/aegis_agency/metrics/metrics.py,utility_retention,tests/test_metrics.py,implemented,1 - over-refusal
+Section 10,Section 10,Group-conditional ASR,src/aegis_agency/metrics/metrics.py,group_conditional_asr,tests/test_metrics.py,implemented,Mondrian-style per group
+Lemma 1,Eq. (6),Displacement constant C_alpha,src/aegis_agency/metrics/theory.py,c_alpha,tests/test_theory.py,implemented,Domain f<n/2 enforced; C_0=2 C_{1/4}=3 C_{1/3}=4
+Theorem 1,Eq. (7),Integrity condition gamma>C_alpha r,src/aegis_agency/metrics/theory.py,integrity_condition,tests/test_theory.py,implemented,Conditional guarantee
+Lemma 1,Eq. (6),Displacement bound check,src/aegis_agency/metrics/theory.py,displacement_holds,tests/test_theory.py,implemented,Tolerance for Weiszfeld approximation
+Proposition 3,Eq. (8),Correlated-failure variance,src/aegis_agency/metrics/theory.py,correlated_variance,tests/test_theory.py,implemented,Verified vs Monte-Carlo exchangeable-Bernoulli
+Proposition 2,Prop. 2,Injection flip bound,src/aegis_agency/metrics/theory.py,injection_flip_bound,tests/test_theory.py,implemented,Union bound under independence
+Section 9,Section 9,Token cost model,src/aegis_agency/metrics/cost.py,token_cost,,implemented,Linear in n
+Section 9,Eq. (lat-par),Latency models,src/aegis_agency/metrics/cost.py,latency_parallel / latency_sequential,,implemented,Parallel max / sequential sum
+Section 10,Section 10,Baseline: always-submit,src/aegis_agency/baselines/no_defense.py,NoDefensePipeline,tests/test_reproducibility.py,implemented,
+Section 10,Section 10,Baseline: single hardened model,src/aegis_agency/baselines/single_model.py,SingleModelPipeline,tests/test_metrics.py,implemented,Structural; real SecAlign is a stub
+Section 10,Section 10,Baseline: plain majority vote,src/aegis_agency/baselines/majority_vote.py,MajorityVotePipeline,tests/test_core_algorithms.py,implemented,
+Section 2 / Section 10,Section 10,Baseline: AutoDefense single Coordinator,src/aegis_agency/baselines/autodefense.py,AutoDefensePipeline,,implemented,Non-robust mean; real system is AutoDefenseAdapter stub
+Section 2,Section 2,External: real AutoDefense,src/aegis_agency/baselines/external_wrappers.py,AutoDefenseAdapter,,adapter_stub_waiting_for_external_dependency,Requires external repo + LLMs
+Section 6.2,Section 6.2,External: SecAlign / StruQ judges,src/aegis_agency/baselines/external_wrappers.py,SecAlignAdapter / StruQAdapter,,adapter_stub_waiting_for_external_dependency,Requires checkpoints
+Section 5.3,Section 5.3,External: JudgeDeceiver injector,src/aegis_agency/baselines/external_wrappers.py,JudgeDeceiverAdapter,,adapter_stub_waiting_for_external_dependency,Requires external optimiser
+Section 10,Section 10,Real benchmarks (HarmBench/AdvBench/InjecAgent/...),src/aegis_agency/data/adapters.py,CsvBenchmarkAdapter / BenchmarkAdapter,,not_implemented_requires_manual_data,Manual download/license on EC2; CSV schema documented
+Section 10,Section 10 RQ1,Colluding-fraction sweep,src/aegis_agency/experiments/run_evaluation.py,run_evaluation,tests/test_cli.py,implemented_with_synthetic_demo,Synthetic sweep; placeholder for real runs
+Section 10,Section 10 ablations,Component ablations,src/aegis_agency/experiments/run_ablation.py,run_ablation,,implemented_with_synthetic_demo,Aggregation/isolation/hardening/diversity/size
+Section 10,Table 5-6 / Fig 6,Result tables & plots,src/aegis_agency/experiments/plot_results.py,plot_evaluation_sweep,tests/test_cli.py,implemented_with_synthetic_demo,Generated from CSV; synthetic banner; paper tables remain placeholders
+Section 10,Section 10 reproducibility,Provenance / seeding,src/aegis_agency/utils/provenance.py,RunProvenance,tests/test_reproducibility.py,implemented,is_paper_result always False for synthetic
+Section 8,Lemma 2,Krum theoretical constant,src/aegis_agency/methods/aggregators.py,krum,,intentionally_out_of_scope,Paper restates Blanchard et al.; constant not re-derived here
+Section 6.4,Section 6.4,Task-integrity generalisation,src/aegis_agency/data/schemas.py,Payload.true_label,tests/test_schemas.py,implemented,Label semantics cover jailbreak and task-integrity; real labels from benchmarks

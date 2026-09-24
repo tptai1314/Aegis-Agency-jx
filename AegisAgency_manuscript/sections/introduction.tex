@@ -1,0 +1,126 @@
+\section{Introduction}
+\label{sec:intro}
+
+Large language models are now embedded in applications that read untrusted text,
+call tools, and act on behalf of users. Two failure modes dominate the security
+discussion. \emph{Jailbreaks} coax a model into producing content its operator
+intended to withhold~\cite{zou2023universal,shen2023dan,chao2023pair,yi2024jailbreaksurvey}. \emph{Prompt
+injection} is subtler: adversarial instructions embedded in data the model
+processes—an email, a web page, a tool result—override the operator's intended task,
+so that an output that violates the intended instruction hierarchy can nonetheless
+look benign~\cite{greshake2023injection,liu2024formalizing,wallace2024instruction}.
+Both threats have motivated a wave of defenses, from single-model hardening through
+preference optimisation and structured
+inputs~\cite{chen2025secalign,chen2024struq} to runtime guardrails and moderation
+classifiers~\cite{inan2023llamaguard,rebedea2023nemo,markov2023holistic,zeng2024shieldgemma}.
+
+A distinct and increasingly popular design filters LLM outputs with a \emph{team} of
+LLM agents rather than a single model. AutoDefense~\cite{zeng2024autodefense} is the
+canonical example: an Input agent forwards a candidate response to an Intention
+Analyzer and an Original-Prompt Analyzer, a Judge agent renders a verdict, an optional
+Llama-Guard agent~\cite{inan2023llamaguard} adds a content check, and a Coordinator
+combines these into a final allow/block decision enforced by an Output agent. The
+reported effect is substantial: on one configuration AutoDefense reduces the jailbreak
+attack success rate from $55.74\%$ to $7.95\%$ using a three-agent LLaMA-2-13b
+committee~\cite{zeng2024autodefense}. Multi-agent scaffolding of this kind—role
+specialisation, analysis, and adjudication—mirrors the broader move toward LLM agent
+societies~\cite{wu2023autogen,hong2023metagpt,li2023camel,qian2023chatdev,du2023debate,xi2023agentsurvey}.
+
+\paragraph{The blind spot.}
+These pipelines secure the content they inspect, but they do not secure
+\emph{themselves}. The defense is a multi-agent system, and it inherits every threat
+that multi-agent LLM systems are now known to
+face~\cite{lee2024promptinfection,tian2023evilgeniuses,ju2024flooding,he2025redteaming,zhang2024psysafe,zhang2024asb}.
+Concretely, an AutoDefense-style agency makes four assumptions that an adversary can
+attack:
+\begin{enumerate}[leftmargin=1.6em,itemsep=2pt,topsep=2pt]
+  \item \textbf{Honest defenders.} Every internal agent is assumed faithful. A single
+        compromised or fine-tuned-to-collude judge, or a supply-chain-tainted analyzer,
+        is outside the model.
+  \item \textbf{A trusted coordinator.} Verdicts flow through one aggregation point with
+        no voting, quorum, or Byzantine tolerance; whoever controls it controls the
+        decision.
+  \item \textbf{Trustworthy self-inspection.} The untrusted candidate is fed directly to
+        the judges. But the judges are themselves LLMs, and text crafted to look like a
+        response can carry instructions aimed at \emph{them}—a \emph{second-order} prompt
+        injection against the defenders, precisely the attack that flips
+        LLM-as-a-judge verdicts~\cite{shi2024judgeinjection,zheng2023judging,wang2023notfair}.
+  \item \textbf{Static adversaries.} Evaluation uses fixed attack sets, not an attacker
+        that adapts to the pipeline or its aggregation rule—exactly the setting where
+        robust aggregators have historically
+        broken~\cite{fang2020poisoning,baruch2019little,xie2019fall}.
+\end{enumerate}
+A single hardened model such as SecAlign~\cite{chen2025secalign} has no co-defender to
+collude with and no coordinator to subvert; these threats appear only once the defense
+is a team. The gap is therefore specific to multi-agent defenses and cannot be closed
+by swapping in a better single model.
+
+\paragraph{This paper.}
+We treat the defense pipeline as a first-class attack surface and ask what it takes to
+tolerate a compromised minority of its own agents while resisting injection from the
+content it reads. Our answer, \Aegis, has four components, illustrated in
+\cref{fig:architecture}:
+\begin{enumerate}[leftmargin=1.6em,itemsep=2pt,topsep=2pt]
+  \item \emph{Byzantine-robust verdict aggregation.} The single coordinator is replaced
+        by a robust aggregation rule over judge verdicts—Krum-style
+        selection~\cite{blanchard2017krum}, coordinate-wise
+        median~\cite{yin2018byzantine}, or geometric
+        median~\cite{chen2017byzantine,pillutla2022rfa}—so that a malicious minority
+        cannot flip the decision.
+  \item \emph{Payload isolation.} The untrusted candidate is confined to a structured
+        data channel, separated from each judge's instruction channel following the
+        structured-query and spotlighting
+        principles~\cite{chen2024struq,hines2024spotlighting}, closing the second-order
+        injection surface the defense creates by reading untrusted text.
+  \item \emph{Hardened judges.} Each judge is individually fine-tuned to resist
+        injection~\cite{chen2025secalign,chen2024struq}, so that isolation and
+        aggregation defend a committee whose members are already robust.
+  \item \emph{Task-integrity generalisation.} The verdict target is lifted from
+        ``harmful content'' to ``violated the intended task or privilege
+        hierarchy''~\cite{wallace2024instruction}, extending the pipeline from jailbreak
+        filtering to prompt-injection filtering.
+\end{enumerate}
+
+\paragraph{What we claim, and what we do not.}
+We are deliberately conservative. Robust aggregation borrowed from distributed learning
+comes with a tolerance condition ($2f{+}2<n$ for
+selection~\cite{blanchard2017krum}, $f<n/2$ for median
+rules~\cite{yin2018byzantine}), and its guarantees are conditional on the honest
+verdicts actually concentrating—an assumption that is vacuous if every judge shares a
+backbone and fails identically~\cite{kuncheva2003diversity}. We therefore prove a
+decision-integrity guarantee \emph{under explicit assumptions}, and separately
+characterise how it decays as judge failures become correlated. We do not claim that a
+lower attack success rate under compromise equals security; we claim \emph{graceful
+degradation} and we report residual failures. Our theoretical results are stated with
+their assumptions in full, and the empirical numbers in this manuscript are placeholders
+that fix the evaluation protocol rather than measured outcomes.
+
+\paragraph{Contributions.}
+\begin{itemize}[leftmargin=1.4em,itemsep=2pt,topsep=2pt]
+  \item \textbf{Threat model (\cref{sec:system,sec:problem}).} The first threat model,
+        to our knowledge within the verified literature, that drops AutoDefense's
+        honest-agent and single-coordinator assumptions and adds second-order injection
+        against the judges, with attacker knowledge, capability, collusion, and adaptivity
+        made explicit.
+  \item \textbf{Architecture (\cref{sec:method,sec:algorithm}).} \Aegis, combining
+        Byzantine-robust verdict aggregation, payload isolation, and hardened judges,
+        generalised from jailbreak to task-integrity, together with the aggregation
+        algorithm over the semantic verdict space.
+  \item \textbf{Theory (\cref{sec:theory,sec:complexity}).} A decision-integrity theorem
+        for robust verdict aggregation under honest-concentration and margin assumptions,
+        a correlated-failure analysis that makes the diversity requirement quantitative,
+        and a security-versus-cost complexity analysis.
+  \item \textbf{Adaptive evaluation (\cref{sec:experiments}).} An evaluation protocol
+        against compromised judges, colluding minorities, second-order payload injection,
+        and adaptive attacks on the aggregation rule—absent from prior multi-agent
+        defenses—with baselines AutoDefense, a single hardened model, and plain majority
+        vote, and a stated correlated-failure test over homogeneous versus diverse
+        backbones.
+\end{itemize}
+
+\Cref{sec:related} positions the work; \cref{sec:prelim} fixes preliminaries;
+\cref{sec:system,sec:problem} give the system and threat model and problem formulation;
+\cref{sec:method,sec:algorithm} present the architecture and algorithm;
+\cref{sec:theory,sec:complexity} develop the theory and cost analysis;
+\cref{sec:experiments} specifies the evaluation; \cref{sec:discussion,sec:limitations}
+discuss implications and limitations; \cref{sec:conclusion} concludes.

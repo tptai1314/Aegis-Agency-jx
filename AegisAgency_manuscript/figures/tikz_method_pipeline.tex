@@ -1,0 +1,38 @@
+% figures/tikz_method_pipeline.tex  ->  \cref{fig:pipeline}
+\begin{figure}[t]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[node distance=6mm and 11mm]
+
+\node[payload] (s0) {\icondoc[aegisAmber]\\ \textbf{0.}\ payload $\pay$};
+\node[honest, right=of s0] (s1)
+  {\iconmodel[aegisBlue]\\ \textbf{1.}\ analyze:\\ intent \& hierarchy};
+\node[defense, right=of s1] (s2)
+  {\iconlock[aegisGreen]\\ \textbf{2.}\ isolate:\\ data channel $\tilde{\pay}$};
+\node[honest, right=of s2] (s3)
+  {\iconjudge[aegisBlue]\\ \textbf{3.}\ $n$ hardened\\ judges $\to\verd_k$};
+\node[defense, right=of s3] (s4)
+  {\iconshield[aegisGreen]\\ \textbf{4.}\ robust agg.\\ $\uhat=\Agg(\verd_{1:n})$};
+\node[theory, right=of s4] (s5)
+  {\textbf{5.}\ decide\\ $\hat d=\dec(\uhat)$};
+
+% escalate branch
+\node[infra, below=8mm of s5] (esc) {escalate if\\ $|\hat s-\thr|<\delta$};
+
+% straight numbered pipeline (blue data flow)
+\foreach \a/\b in {s0/s1, s1/s2, s2/s3, s3/s4, s4/s5}
+  \draw[dataflow] (\a) -- (\b);
+\draw[ctrlflow] (s5.south) -- (esc.north);
+
+% short equation chips under key stages (no crossing)
+\node[elabel, below=1.5mm of s3] {$\verd_k=(\score_k,\emb_k)$};
+\node[elabel, below=1.5mm of s2] {StruQ / spotlighting};
+
+\end{tikzpicture}}
+\caption{The \Aegis\ method pipeline as five numbered, left-to-right stages
+(\cref{alg:aegis}). Stage~2 (isolation, green) and stage~4 (robust aggregation, green) are
+the defensive additions; stage~3 (blue) is the hardened judge committee. The control-flow
+branch (gray, dashed) escalates low-margin cases to review. Short equations are placed on
+white chips beneath their stage so no arrow crosses text.}
+\label{fig:pipeline}
+\end{figure}

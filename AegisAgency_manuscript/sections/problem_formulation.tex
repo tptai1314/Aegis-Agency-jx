@@ -1,0 +1,83 @@
+\section{Problem Formulation}
+\label{sec:problem}
+
+\subsection{The adjudication task}
+Let $\pay$ be an inspected payload drawn from a distribution over benign and adversarial
+content, and let $y^\star(\pay)\in\{0,1\}$ be the ground-truth label ($1$ if $\pay$ must
+be blocked because it is unsafe or violates the intended task/instruction hierarchy,
+$0$ otherwise). The agency computes verdicts $\{\verd_k\}_{k\in[n]}$, aggregates them to
+$\uhat=\Agg(\verd_1,\dots,\verd_n)$, and outputs $\hat d=\dec(\uhat)$. We evaluate the
+agency by two dual error rates, each measured under an adversary that controls up to $f$
+judges and the payload:
+\begin{align}
+  \textsc{asr-uc}(f) &= \Prob\bigl[\hat d = 0 \,\big|\, y^\star(\pay)=1\bigr]
+    && \text{(attack success under compromise / evasion)}, \label{eq:asruc}\\
+  \textsc{orr}(f)   &= \Prob\bigl[\hat d = 1 \,\big|\, y^\star(\pay)=0\bigr]
+    && \text{(over-refusal / availability loss)}. \label{eq:orr}
+\end{align}
+The probabilities are over the payload distribution, the judges' stochasticity, and the
+adversary's choices. \textsc{asr-uc} generalises the jailbreak attack success rate of
+AutoDefense~\cite{zeng2024autodefense} to (i)~task-integrity violations and (ii)~the
+presence of compromised judges; \textsc{orr} captures the cost the idea flags explicitly,
+that a block-biased aggregator harms benign traffic.
+
+\subsection{Design goals}
+\begin{description}[leftmargin=0em,itemsep=2pt,topsep=2pt]
+  \item[\textnormal{(G1) Decision integrity under a Byzantine minority.}] For $f$ below
+        the rule's tolerance, up to $f$ colluding judges must not be able to force
+        $\hat d=0$ on a payload the honest committee would block, nor $\hat d=1$ on one it
+        would allow. This is the property flagged in the idea as ``to be proven, not
+        assumed''; \cref{sec:theory} establishes it under explicit assumptions.
+  \item[\textnormal{(G2) Second-order injection containment.}] Instructions embedded in
+        the payload must not, on their own, change honest verdicts; the attacker's only
+        remaining lever should be to spend from its budget of $f$ compromised judges.
+  \item[\textnormal{(G3) Graceful degradation, not brittleness.}] As $f$ grows toward the
+        tolerance boundary and as honest verdicts become correlated, \textsc{asr-uc} and
+        \textsc{orr} should rise smoothly and predictably, with the dependence
+        characterised rather than assumed away.
+  \item[\textnormal{(G4) Bounded cost.}] The security gain must be accounted against
+        latency and token/API cost, both of which grow with the committee size $n$.
+\end{description}
+
+\subsection{What ``secure'' does and does not mean here}
+We state a non-claim precisely, because it governs the theory and the evaluation.
+A reduction in \textsc{asr-uc}$(f)$ relative to a single model or a plain majority vote is
+\emph{evidence of graceful degradation}. It is \emph{not} a proof that the agency is
+secure: our guarantees are conditional on assumptions (honest concentration, decision
+margin, tolerable correlation) that may fail in deployment, and adaptive attacks are known
+to defeat robust aggregators when their assumptions are
+violated~\cite{fang2020poisoning,baruch2019little}. We therefore (a)~prove (G1)--(G2)
+under assumptions we state in full, (b)~characterise the degradation in (G3) quantitatively,
+and (c)~report residual failures and the security-versus-cost frontier (G4) rather than a
+single headline number.
+
+\subsection{Threat-to-defense map}
+\Cref{tab:threatmap} pins each attacker lever to the design goal and mechanism that
+addresses it, and to where it is analysed and tested. The rest of the paper follows this
+map.
+
+\begin{table}[t]
+\centering
+\caption{Threat-to-defense map. Each attacker lever is contained by a specific mechanism,
+analysed under specific assumptions, and exercised by a specific attack in the evaluation.}
+\label{tab:threatmap}
+\small
+\begin{tabular}{@{}p{3.0cm}p{2.6cm}p{3.1cm}p{3.4cm}@{}}
+\toprule
+Attacker lever & Design goal & Mechanism & Analysed / tested by \\
+\midrule
+Compromise up to $f$ judges & (G1) integrity & Byzantine-robust aggregation
+  ($\Krum$/$\cmed$/$\gmed$) & \cref{thm:integrity}; compromised-judge \& colluding attacks \\
+Second-order injection of payload & (G2) containment & payload isolation (structured
+  data channel) + hardened judges & \cref{def:isolation}, \cref{prop:isolation};
+  second-order injection attack \\
+Adapt to the aggregation rule & (G1),(G3) & tolerance condition + diversity;
+  no reliance on a single aggregator & \cref{thm:integrity}, \cref{prop:correlated};
+  adaptive-on-aggregation attack \\
+Force over-refusal (availability) & (G1) availability & symmetric robust-aggregation
+  guarantee & \cref{cor:availability}; over-refusal measurement \\
+Correlated judge failure & (G3) degradation & backbone/prompt diversity; measured
+  residual correlation & \cref{prop:correlated}; homogeneous-vs-diverse ablation \\
+\bottomrule
+\end{tabular}
+\end{table}

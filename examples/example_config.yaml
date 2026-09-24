@@ -1,0 +1,14 @@
+# Minimal example configuration for a quick synthetic run.
+# Usage:
+#   python scripts/run_experiment.py --config examples/example_config.yaml --stage evaluate --output outputs/example
+experiment:
+  n_judges: 5
+  rules: [cmed, gmed, krum]
+  margin: 0.25
+  radius: 0.08
+  correlation: 0.1
+  embedding_dim: 4
+  attack: compromise
+  f: 1
+  n_payloads: 400     # enough calibration data to avoid the small-sample tau fallback
+  seed: 0

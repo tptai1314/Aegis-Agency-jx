@@ -1,0 +1,48 @@
+\begin{abstract}
+Multi-agent pipelines are increasingly deployed to filter the outputs of large
+language models (LLMs): a team of LLM agents inspects a candidate response, and a
+coordinator combines their verdicts into an allow/block decision. Existing designs,
+exemplified by AutoDefense, sharply reduce jailbreak attack success rates, but they
+secure the \emph{content} while leaving the \emph{defender itself} unexamined. Such
+pipelines assume every internal agent is honest, route all verdicts through a single
+trusted coordinator with no quorum or Byzantine tolerance, feed the untrusted
+candidate directly to the judges that must evaluate it, are stress-tested only against
+static attacks, and target jailbreak (harmful content) rather than prompt injection
+(task-integrity violations that can appear benign). We take the position that a defense
+pipeline is a multi-agent system whose own security must be analysed, and we study two
+threats that have no single-model analogue: compromised or colluding \emph{internal}
+defenders, and \emph{second-order} prompt injection carried by the very content the
+judges read. We present \Aegis, a defense architecture that (i)~replaces the single
+coordinator with Byzantine-robust aggregation of judge verdicts (Krum-style selection,
+coordinate-wise median, or geometric median), (ii)~structurally isolates the untrusted
+payload from each judge's instruction channel, (iii)~hardens each judge against
+injection, and (iv)~generalises the verdict target from harmful-content classification
+to instruction-hierarchy / task-integrity. We formalise the semantic verdict space and
+prove that, under stated honest-concentration and decision-margin assumptions, robust
+aggregation with $2f{+}2<n$ (selection) or $f<n/2$ (median rules) prevents up to $f$
+Byzantine judges from flipping the aggregate decision in either direction; we further
+characterise how the guarantee degrades under correlated judge failures, making the
+required backbone diversity explicit rather than assumed. We give a security-versus-cost
+analysis showing token and latency cost linear in the committee size, and an adaptive
+evaluation protocol covering compromised judges, colluding minorities, second-order
+payload injection, and attacks on the aggregation rule. We are explicit that a reduced
+attack success rate under compromise is evidence of graceful degradation, not a proof
+of end-to-end security; residual failures are reported. The reported empirical figures
+are placeholders that specify the intended protocol and must be replaced with measured
+results before submission.
+\end{abstract}
+
+\vspace{-0.4em}
+\noindent\textbf{Highlights}
+\begin{itemize}[leftmargin=1.3em,itemsep=1pt,topsep=2pt]
+  \item Frames the multi-agent LLM defense pipeline as an object whose own security,
+        under insider compromise and second-order injection, must be analysed.
+  \item \Aegis: Byzantine-robust verdict aggregation, payload isolation, and hardened
+        judges, generalised from jailbreak to prompt-injection/task-integrity.
+  \item Decision-integrity guarantee for robust aggregation in a semantic verdict space
+        under explicit honest-concentration and margin assumptions.
+  \item Correlated-failure analysis that formalises the backbone-diversity requirement
+        and shows added judges do not help once errors are correlated.
+  \item Adaptive-attack evaluation protocol and a security-versus-cost frontier over the
+        number of hardened defenders.
+\end{itemize}

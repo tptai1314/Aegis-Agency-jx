@@ -1,0 +1,99 @@
+\section{The \Aegis\ Architecture}
+\label{sec:method}
+
+\Aegis instantiates the four components of \cref{sec:intro} as a single pipeline
+(\cref{fig:pipeline}). We describe each, then the design rationale that ties them
+together.
+
+\input{figures/tikz_method_pipeline.tex}
+
+\subsection{Payload isolation}
+\label{sec:isolation}
+The Input agent places the untrusted candidate into a structured data channel that is
+lexically and positionally separated from the judges' instruction channel, following the
+structured-query design of StruQ~\cite{chen2024struq} and the marking discipline of
+spotlighting~\cite{hines2024spotlighting}. Concretely, the payload is wrapped in
+reserved, per-request delimiters unknown to the attacker and never interpreted as
+control tokens, and the judge is fine-tuned to treat everything in the data channel as
+inert evidence to be classified, not as instructions to follow. We formalise the target
+property:
+\begin{definition}[$\varepsilon$-isolation]
+\label{def:isolation}
+A judge with verdict distribution $P(\cdot\mid c,\pay)$ given instruction-channel content
+$c$ and data-channel payload $\pay$ is \emph{$\varepsilon$-isolated} if for every payload
+$\pay$ and every ``injected'' variant $\pay'$ that differs from $\pay$ only by added
+instruction-like content,
+\begin{equation}
+  \sup_{c}\; \operatorname{TV}\!\bigl(P(\cdot\mid c,\pay),\,P(\cdot\mid c,\pay')\bigr)\;\le\;\varepsilon ,
+  \label{eq:isolation}
+\end{equation}
+where $\operatorname{TV}$ is total-variation distance over the verdict $v$. Perfect
+isolation is $\varepsilon=0$.
+\end{definition}
+$\varepsilon$ is an empirical property of a hardened, isolated judge, measured in
+\cref{sec:experiments} by the shift in verdicts induced by JudgeDeceiver-style
+injections~\cite{shi2024judgeinjection}. Isolation does not make a judge correct; it makes
+its verdict insensitive to instructions hidden in what it reads, which is what (G2)
+requires.
+
+\subsection{Hardened judges}
+\label{sec:hardened}
+Each judge is an LLM fine-tuned for injection resistance by preference
+optimisation~\cite{chen2025secalign,rafailov2023dpo} and structured-input
+training~\cite{chen2024struq}, on top of an aligned backbone~\cite{ouyang2022instructgpt,bai2022constitutional,touvron2023llama2}.
+A judge outputs the verdict of \cref{eq:verdict}: a decision, a score calibrated by
+temperature scaling~\cite{guo2017calibration} so that scores are comparable across judges,
+and a rationale embedding from a fixed sentence
+encoder~\cite{reimers2019sentencebert,gao2021simcse} that places the free-text
+justification in a shared semantic space. The embedding is what lets robust aggregation
+see \emph{how} a judge reasoned, not only \emph{what} it decided, so that a colluding
+judge that reports the honest decision but a manipulated rationale is still an outlier in
+$\R^d$.
+
+\subsection{Byzantine-robust verdict aggregation}
+\label{sec:aggregation}
+The aggregator replaces the single Coordinator with a robust rule $\Agg$ over
+$\{\verd_k\}$. We support the three rules of \cref{sec:prelim}. $\cmed$ and $\gmed$
+tolerate $f<n/2$ and are cheap; $\Krum$ tolerates $f$ with $2f{+}2<n$ and returns an
+\emph{actual} judge verdict (useful when the operator wants an attributable rationale).
+The aggregate verdict $\uhat$ yields the decision $\hat d=\dec(\uhat)$. The design choice
+that makes this meaningful is aggregating in the \emph{semantic verdict space} $\R^d$
+rather than over decisions alone: a plain majority vote sees only $d_k$ and is blind to a
+colluder that votes with the honest majority while skewing scores to shift a downstream
+threshold or to poison an audit log; aggregating $(\score_k,\emb_k)$ exposes such a
+colluder as a geometric outlier.
+
+\subsection{Task-integrity generalisation}
+\label{sec:taskintegrity}
+The verdict target is lifted from ``is this content harmful?'' to ``does this output
+violate the intended task or privilege hierarchy?''~\cite{wallace2024instruction}. The
+Analyzer agents supply the honest task specification on the instruction channel; each
+judge decides whether the payload, treated as inert data, is consistent with that
+specification. This is what turns a jailbreak filter into a prompt-injection filter: an
+output can be perfectly harmless in isolation yet still constitute a successful injection
+if it obeys an instruction that was smuggled through the data channel rather than issued
+by the operator~\cite{greshake2023injection,liu2024formalizing}.
+
+\subsection{Design rationale: why all four are needed}
+\label{sec:rationale}
+The components are not independent add-ons; each closes a gap the others leave open, and
+this is the core of our novelty argument.
+\begin{itemize}[leftmargin=1.4em,itemsep=2pt,topsep=2pt]
+  \item \emph{Hardened judges alone} are the single-model baseline
+        (SecAlign~\cite{chen2025secalign}). They have no co-defender to collude and no
+        aggregator to subvert—so they cannot express, let alone defend, the insider
+        threat.
+  \item \emph{Robust aggregation alone}, over un-isolated judges, is defeated by
+        second-order injection: an attacker who can flip honest verdicts through the data
+        channel moves the honest majority itself, and no minority-tolerance rule helps
+        once the honest inputs are corrupted~\cite{shi2024judgeinjection}.
+  \item \emph{Isolation alone}, over a single un-aggregated judge, still falls to a single
+        compromised judge, because there is no committee.
+  \item \emph{Aggregation over decisions alone} (plain majority vote) is blind to
+        score/rationale manipulation and, as \cref{prop:correlated} shows, collapses under
+        correlated failure.
+\end{itemize}
+The combination gives (G1) from aggregation, (G2) from isolation plus hardening, and (G3)
+from the diversity requirement that aggregation's assumptions impose. \Cref{fig:pipeline}
+shows the flow; \cref{sec:algorithm} gives the procedure; \cref{sec:theory} proves what
+the combination buys and states precisely where it stops.

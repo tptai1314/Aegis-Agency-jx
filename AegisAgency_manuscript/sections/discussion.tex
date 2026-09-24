@@ -1,0 +1,54 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{What the guarantees do and do not deliver.}
+\Cref{thm:integrity} shows that robust verdict aggregation converts a Byzantine minority
+into a bounded, and under a sufficient margin harmless, perturbation of the decision. The
+force of the result is entirely in its condition $\gamma>C_\alpha r$: it moves the burden
+of proof from ``is the pipeline secure?'' to the measurable ``do honest judges concentrate
+tightly relative to their distance from the policy boundary?'' This is progress precisely
+because it is falsifiable—$r$, $\gamma$, and $\rho$ are quantities \cref{sec:experiments}
+measures, and a deployment in which honest judges are diffuse or the margin is small will
+show it in those numbers rather than in a surprise failure.
+
+\paragraph{Why aggregation in the verdict space, not over decisions.}
+Plain majority vote is the natural committee baseline, but it aggregates only $d_k$ and is
+therefore blind to a colluder that votes with the honest majority while manipulating scores
+or rationales—to bias a downstream threshold, to poison an audit trail, or to prepare a
+later escalation. Aggregating $(\score_k,\emb_k)\in\R^d$ makes such a colluder a geometric
+outlier that $\gmed$ and $\Krum$ down-weight or reject. The cost is that the verdict space
+must be well-behaved: the rationale embedding must place honest justifications near one
+another and manipulated ones far away, which is an assumption on the encoder that we make
+explicit and test, not one we take for granted.
+
+\paragraph{Connection to robust learning, and its warning.}
+We deliberately import machinery whose limits are documented. Adaptive attacks defeat
+Krum and median in federated learning when the attacker stays within the honest
+variance~\cite{baruch2019little,fang2020poisoning,xie2019fall}, and single-selection rules
+degrade in high dimension~\cite{mhamdi2018bulyan}. Both warnings transfer. The first is why
+our evaluation is adaptive by construction and why \cref{thm:integrity} is stated as a
+conditional guarantee rather than an unconditional one; a colluding committee that keeps its
+verdicts within the honest radius $r$ does not violate the theorem but does enlarge the
+effective $r$, and that enlargement is exactly what the colluding-fraction sweep measures.
+The second is why we keep the verdict space low-dimensional and treat $\Krum$ as one option
+among three.
+
+\paragraph{Diversity is a requirement, not a tuning knob.}
+\Cref{prop:correlated} is the least comfortable result in the paper and the most important:
+once honest errors are correlated, adding judges stops helping, and in the limit of
+identical failure the committee is a single point of failure with a larger bill. Backbone
+and prompt diversity is the only lever that reduces $\rho$, and the ensemble literature
+cautions that diversity does not translate cleanly into
+accuracy~\cite{kuncheva2003diversity}. We therefore report $\rho$ alongside every
+robustness number and treat the homogeneous-vs-diverse gap as a headline measurement rather
+than an ablation footnote.
+
+\paragraph{Relation to the broader multi-agent security agenda.}
+Recent work shows task-performing agent teams are attackable through their
+interactions~\cite{lee2024promptinfection,he2025redteaming,ju2024flooding,zhou2025corba,zhang2024psysafe,zhang2024asb}.
+\Aegis addresses the mirror-image problem for a \emph{defensive} team and, by using a star
+topology with no inter-agent messages, removes the communication channel those attacks
+exploit—at the cost of forgoing the benefits of agent debate~\cite{du2023debate}. Whether
+a debating defense committee could achieve tighter honest concentration (smaller $r$)
+without reopening the communication surface is an open question our architecture is
+positioned to study but does not resolve.

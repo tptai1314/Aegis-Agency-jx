@@ -1,0 +1,29 @@
+# Experiment template. Copy and edit for a specific study.
+# On EC2, set data.root / data.benchmark to use real benchmarks (see docs/ec2_experiment_guide.md).
+experiment:
+  n_judges: 7
+  rules: [cmed, gmed, krum]
+  margin: 0.2
+  radius: 0.1
+  correlation: 0.2
+  embedding_dim: 8
+  threshold: 0.5
+  escalate_band: 0.05    # enable escalation band delta
+  attack: collusion      # stress-test with adaptive collusion
+  f: 2
+  n_payloads: 1000
+  unsafe_fraction: 0.5
+  calibrate: true
+  target_orr: 0.05
+  seed: 0
+
+data:
+  root: ""               # e.g. /data/injecagent
+  benchmark: ""          # harmbench | advbench | injecagent | formal_injection
+  split: test
+
+# Backbones to instantiate real judges with on EC2 (adapter-driven; not used in synthetic runs).
+judges:
+  backbones: [llama-3, qwen2.5, mistral, gpt-4o, claude-3.5]
+  homogeneous: false     # diverse committee (RQ4)
+  hardening: [secalign, struq]

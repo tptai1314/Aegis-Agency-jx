@@ -1,0 +1,50 @@
+% figures/tikz_threat_privacy_robustness.tex  ->  \cref{fig:threat}
+\begin{figure}[t]
+\centering
+\resizebox{0.98\textwidth}{!}{%
+\begin{tikzpicture}[node distance=9mm and 16mm]
+
+% central pipeline spine (honest, blue) -------------------------------
+\node[honest] (payload) {\icondoc[aegisBlue]\\ payload $\pay$\\ (data channel)};
+\node[honest, right=of payload] (judges) {\iconjudge[aegisBlue]\\ honest judges\\ $\Hset$};
+\node[honest, right=of judges] (agg) {\iconshield[aegisBlue]\\ aggregator\\ $\Agg$};
+\node[honest, right=of agg] (dec) {\iconserver[aegisBlue]\\ decision $\hat d$};
+\foreach \a/\b in {payload/judges, judges/agg, agg/dec}
+  \draw[dataflow] (\a) -- (\b);
+
+% attacker levers (red, top) ------------------------------------------
+\node[adv, above=13mm of payload] (t2) {\iconattacker[aegisRed]\\ (ii) second-order\\ injection};
+\node[byz, above=13mm of judges] (t1) {(i) compromise\\ up to $f$ judges};
+\node[adv, above=13mm of agg] (t3) {(iii) adapt to\\ rule $\Agg$};
+
+\draw[advflow] (t2.south) -- (payload.north) node[elabel,midway]{shift $\varepsilon$};
+\draw[advflow] (t1.south) -- (judges.north) node[elabel,midway]{$f$ Byz.};
+\draw[advflow] (t3.south) -- (agg.north) node[elabel,midway]{bias $\uhat$};
+
+% defenses (green, bottom) --------------------------------------------
+\node[defense, below=13mm of payload] (d2) {\iconlock[aegisGreen]\\ isolation\\ (\cref{prop:isolation})};
+\node[defense, below=13mm of judges] (d1) {hardening\\ (SecAlign/StruQ)};
+\node[defense, below=13mm of agg] (d3) {\iconshield[aegisGreen]\\ $2f{+}2<n$\\ (\cref{thm:integrity})};
+
+\draw[defflow] (d2.north) -- (payload.south) node[elabel,midway]{contains};
+\draw[defflow] (d1.north) -- (judges.south) node[elabel,midway]{resists};
+\draw[defflow] (d3.north) -- (agg.south) node[elabel,midway]{bounds};
+
+% legend --------------------------------------------------------------
+\node[adv, minimum width=6mm, minimum height=4mm, below right=6mm and 6mm of dec] (lgA) {};
+\node[right=1mm of lgA, aegissmall] (lgAt) {attack lever};
+\node[defense, minimum width=6mm, minimum height=4mm, below=2mm of lgA] (lgD) {};
+\node[right=1mm of lgD, aegissmall] {defense};
+\node[honest, minimum width=6mm, minimum height=4mm, below=2mm of lgD] (lgH) {};
+\node[right=1mm of lgH, aegissmall] {honest pipeline};
+
+\end{tikzpicture}}
+\caption{Threat-and-defense map. The honest pipeline spine (blue) runs left to right. Above
+it (red), the three composable attacker levers: (i) compromising up to $f$ judges (dashed
+Byzantine node), (ii) second-order injection of the payload, and (iii) adapting to the
+aggregation rule. Below it (green), the mechanism that contains each lever: isolation for
+(ii), judge hardening for the judges, and the $2f{+}2<n$ robust-aggregation guarantee for
+(iii). Each attack and defense connects to the single component it acts on; lanes are
+separated by colour and dash, and every label sits on a white chip.}
+\label{fig:threat}
+\end{figure}
