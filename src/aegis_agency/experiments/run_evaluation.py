@@ -9,7 +9,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Sequence
 
-from aegis_agency.experiments.harness import TrialConfig, sweep_colluding_fraction
+from aegis_agency.experiments.harness import TrialConfig, data_source_tag, sweep_colluding_fraction
 from aegis_agency.utils.io import write_csv, write_json
 from aegis_agency.utils.logging import get_logger
 from aegis_agency.utils.provenance import RunProvenance
@@ -36,9 +36,10 @@ def run_evaluation(
             "n_judges": cfg.n_judges, "attack": cfg.attack, "rules": list(cfg.rules),
             "margin": cfg.margin, "radius": cfg.radius, "correlation": cfg.correlation,
             "f_values": list(f_values),
+            "data_root": cfg.data_root, "benchmark": cfg.benchmark, "data_split": cfg.data_split,
         },
-        data_source="synthetic",
+        data_source=data_source_tag(cfg),
     )
     write_json(out_dir / "evaluation_provenance.json", prov.to_dict())
-    logger.info("Wrote %d rows to %s (synthetic smoke-test output).", len(rows), out_dir / "evaluation_sweep.csv")
+    logger.info("Wrote %d rows to %s (%s smoke-test output).", len(rows), out_dir / "evaluation_sweep.csv", data_source_tag(cfg))
     return {"rows": rows, "provenance": prov.to_dict()}

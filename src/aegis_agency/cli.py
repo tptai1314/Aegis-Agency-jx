@@ -30,11 +30,24 @@ logger = get_logger(__name__)
 
 
 def _config_from_dict(d: dict[str, Any]) -> TrialConfig:
-    """Build a TrialConfig from a (possibly nested) config dict."""
+    """Build a TrialConfig from a (possibly nested) config dict.
+
+    ``experiment:`` keys map directly onto TrialConfig fields; the optional top-level
+    ``data:`` section (used by the EC2 real-data configs) is mapped onto
+    ``data_root`` / ``benchmark`` / ``data_split``.
+    """
     exp = d.get("experiment", d)
     fields = {f: exp[f] for f in TrialConfig.__dataclass_fields__ if f in exp}
     if "rules" in fields:
         fields["rules"] = tuple(fields["rules"])
+    data = d.get("data") if isinstance(d, dict) else None
+    if isinstance(data, dict):
+        if "root" in data and "data_root" not in fields:
+            fields["data_root"] = data["root"]
+        if "benchmark" in data and "benchmark" not in fields:
+            fields["benchmark"] = data["benchmark"]
+        if "split" in data and "data_split" not in fields:
+            fields["data_split"] = data["split"]
     return TrialConfig(**fields)
 
 

@@ -40,7 +40,11 @@ paths / API endpoints via `ExternalBaselineConfig.model_path_or_endpoint`; **nev
 secrets** — read them from environment variables or a mounted secrets file.
 
 ## 4. Run the protocol (RQ1-RQ6)
-Replace the synthetic verdict generator with real judge verdicts (via the adapters), then:
+Payload loading from on-disk benchmarks is already wired: set `data.root` / `data.benchmark`
+/ `data.split` in the config and the harness reads `<root>/<benchmark>/test.csv` via
+`CsvBenchmarkAdapter` (verdicts are still synthetic until the judge adapters below are done).
+What remains to replace is the **verdict generator** with real judge verdicts (via the
+adapters), then:
 ```bash
 python scripts/run_experiment.py --config configs/experiment_template.yaml --stage calibrate --output outputs/real
 python scripts/run_experiment.py --config configs/experiment_template.yaml --stage evaluate --output outputs/real

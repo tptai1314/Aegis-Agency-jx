@@ -1,0 +1,33 @@
+# Real-data smoke-test configuration.
+#
+# Loads REAL benchmark payloads from data/benchmarks/<benchmark>/test.csv into the existing
+# (still synthetic-verdict) harness. This is the step between the synthetic demo and the
+# full EC2 protocol: adjudication/metrics run on genuinely labelled jailbreak/injection
+# traffic, while verdicts come from SyntheticJudgePopulation until a real LLMJudgeAdapter is
+# implemented. Outputs are labelled with data_source="benchmark:<name>" and are NOT paper
+# results.
+#
+#   python scripts/run_experiment.py --config configs/real_experiment.yaml --stage calibrate --output outputs/real_formal
+#   python scripts/run_experiment.py --config configs/real_experiment.yaml --stage evaluate  --output outputs/real_formal
+#
+experiment:
+  n_judges: 7
+  rules: [cmed, gmed, krum]
+  margin: 0.25
+  radius: 0.08
+  correlation: 0.1
+  embedding_dim: 4
+  threshold: 0.5
+  escalate_band: 0.0
+  attack: compromise
+  f: 2
+  n_payloads: 1000
+  unsafe_fraction: 0.5
+  calibrate: true
+  target_orr: 0.05
+  seed: 7
+
+data:
+  root: "data/benchmarks"
+  benchmark: "formal"        # formal is class-balanced (700 unsafe / 700 benign)
+  split: test

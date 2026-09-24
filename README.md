@@ -63,10 +63,13 @@ python -m aegis_agency.cli plot --input outputs/eval/evaluation_sweep.csv --outp
 ```
 
 ## Real-data usage (EC2)
-This repo never downloads data. Place benchmarks on disk (see `docs/data_format.md`), wire the
-real LLM-judge and baseline adapters (`docs/baseline_adapters.md`), and follow
-`docs/ec2_experiment_guide.md`. Then run `scripts/run_experiment.py` stages against real
-verdicts.
+This repo never downloads data. Place benchmarks on disk (see `docs/data_format.md`) and
+point a config's `data:` section at them — the harness loads real benchmark payloads via
+`CsvBenchmarkAdapter` (see `configs/real_experiment.yaml`). While verdicts are synthetic it
+produces labelled real-traffic smoke tests (`data_source="benchmark:<name>"`), not paper
+numbers. Wire the real LLM-judge and baseline adapters (`docs/baseline_adapters.md`),
+follow `docs/ec2_experiment_guide.md`, then run `scripts/run_experiment.py` stages against
+real verdicts.
 
 ## Folder structure
 ```

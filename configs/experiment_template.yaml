@@ -1,5 +1,7 @@
 # Experiment template. Copy and edit for a specific study.
-# On EC2, set data.root / data.benchmark to use real benchmarks (see docs/ec2_experiment_guide.md).
+# On EC2 (or locally, with `data/benchmarks/` provisioned), set data.root / data.benchmark
+# to load real benchmark payloads. Verdicts remain synthetic until a real LLMJudgeAdapter
+# is wired in -- see docs/baseline_adapters.md and TODO_IMPLEMENTATION.md.
 experiment:
   n_judges: 7
   rules: [cmed, gmed, krum]
@@ -17,9 +19,12 @@ experiment:
   target_orr: 0.05
   seed: 0
 
+# Consumed from here when running with real benchmarks. `data.benchmark` is either a
+# subdirectory of data.root (e.g. data/benchmarks/<name>) or empty when data.root already
+# points at the benchmark directory holding <split>.csv.
 data:
-  root: ""               # e.g. /data/injecagent
-  benchmark: ""          # harmbench | advbench | injecagent | formal_injection
+  root: "data/benchmarks"     # e.g. /data/injecagent on EC2, or data/benchmarks locally
+  benchmark: "formal"         # harmbench | advbench | dan | injecagent | formal | second_order | benign | benign_xstest
   split: test
 
 # Backbones to instantiate real judges with on EC2 (adapter-driven; not used in synthetic runs).

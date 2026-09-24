@@ -1,7 +1,8 @@
 """Calibration stage: select thresholds on honest (no-attack) data.
 
-Writes the per-method calibrated thresholds and a provenance record. On EC2 with real data,
-point ``data.root`` at a real calibration split; here it uses synthetic payloads.
+Writes the per-method calibrated thresholds and a provenance record. With ``data.root`` set
+in the config, payloads are loaded from a real benchmark on disk (verdict simulation still
+synthetic); otherwise synthetic payloads are generated.
 """
 
 from __future__ import annotations
@@ -10,8 +11,12 @@ from pathlib import Path
 
 import numpy as np
 
-from aegis_agency.data.synthetic import generate_payloads
-from aegis_agency.experiments.harness import TrialConfig, build_pipelines, simulate_honest_committee
+from aegis_agency.experiments.harness import (
+    TrialConfig,
+    build_pipelines,
+    load_payloads,
+    simulate_honest_committee,
+)
 from aegis_agency.judges.synthetic_judges import SyntheticJudgePopulation
 from aegis_agency.methods.calibration import calibrate_threshold
 from aegis_agency.utils.io import write_json
@@ -22,13 +27,13 @@ logger = get_logger(__name__)
 
 
 def run_calibration(cfg: TrialConfig, output_dir: str | Path) -> dict:
-    """Calibrate thresholds for all methods on synthetic honest data."""
+    """Calibrate thresholds for all methods on honest data."""
     rng = np.random.default_rng(cfg.seed)
     pop = SyntheticJudgePopulation(
         n_judges=cfg.n_judges, margin=cfg.margin, radius=cfg.radius,
         correlation=cfg.correlation, embedding_dim=cfg.embedding_dim, threshold=cfg.threshold,
     )
-    payloads = generate_payloads(cfg.n_payloads, rng, unsafe_fraction=cfg.unsafe_fraction)
+    payloads, data_source = load_payloads(cfg, rng)
     pipelines = build_pipelines(cfg)
 
     thresholds: dict[str, float] = {}
@@ -47,8 +52,11 @@ def run_calibration(cfg: TrialConfig, output_dir: str | Path) -> dict:
 
     prov = RunProvenance(
         run_id="calibration", stage="calibrate", seed=cfg.seed,
-        config={"n_judges": cfg.n_judges, "target_orr": cfg.target_orr},
-        data_source="synthetic",
+        config={
+            "n_judges": cfg.n_judges, "target_orr": cfg.target_orr,
+            "data_root": cfg.data_root, "benchmark": cfg.benchmark, "data_split": cfg.data_split,
+        },
+        data_source=data_source,
     )
     out = {"thresholds": thresholds, "provenance": prov.to_dict()}
     write_json(Path(output_dir) / "calibration.json", out)

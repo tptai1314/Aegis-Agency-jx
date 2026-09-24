@@ -14,6 +14,7 @@ All outputs are synthetic smoke-test artefacts, never paper results.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Sequence
 
 import numpy as np
@@ -62,6 +63,13 @@ class TrialConfig:
     target_orr: float = 0.05
     seed: int = 0
     attack_kwargs: dict = field(default_factory=dict)
+    # Real-data sources (off by default). When ``data_root`` is set the harness loads
+    # payloads from a benchmark on disk via CsvBenchmarkAdapter instead of generating
+    # synthetic payloads. Verdicts are STILL synthetic (SyntheticJudgePopulation) until a
+    # real LLMJudgeAdapter is wired in.
+    data_root: str = ""       # path to a benchmark dir (or a parent dir named by ``benchmark``)
+    benchmark: str = ""       # benchmark key (row in data/benchmarks/PROVENANCE.json or dir name)
+    data_split: str = "test"  # reads ``<dir>/<split>.csv``
 
 
 # ------------------------------------------------------------------ pipeline construction
@@ -133,6 +141,52 @@ def apply_attack(
     return attack.apply(honest, payload, cfg.f, rng)
 
 
+# --------------------------------------------------------------------------------- payloads
+def _benchmark_root(cfg: TrialConfig) -> Path:
+    """Resolve the benchmark directory containing ``<split>.csv``.
+
+    Accepts either ``data_root`` pointing directly at a benchmark dir (``data/benchmarks/
+    formal``) or at the parent of benchmark dirs when ``benchmark`` is also set
+    (``data_root=data/benchmarks`` + ``benchmark=formal``).
+    """
+    root = Path(cfg.data_root)
+    if cfg.benchmark and (root / cfg.benchmark).is_dir():
+        return root / cfg.benchmark
+    return root
+
+
+def data_source_tag(cfg: TrialConfig) -> str:
+    """Provenance tag describing where the payloads come from."""
+    if cfg.data_root:
+        return f"benchmark:{cfg.benchmark or _benchmark_root(cfg).name}"
+    return "synthetic"
+
+
+def load_payloads(cfg: TrialConfig, rng: np.random.Generator) -> tuple[list[Payload], str]:
+    """Load evaluation payloads, returning ``(payloads, source_tag)``.
+
+    When ``cfg.data_root`` is set the payloads come from a real benchmark on disk via
+    :class:`CsvBenchmarkAdapter`; otherwise synthetic payloads are generated. The payload
+    list is deterministically subsampled (seeded by ``cfg.seed`` via ``rng``) to
+    ``cfg.n_payloads`` and shuffled, so calibration/evaluation splits are reproducible.
+    """
+    if cfg.data_root:
+        from aegis_agency.data.adapters import CsvBenchmarkAdapter
+
+        root = _benchmark_root(cfg)
+        adapter = CsvBenchmarkAdapter(root=root, split=cfg.data_split)
+        payloads = list(adapter.iter_payloads())
+        if not payloads:
+            raise ValueError(f"Benchmark {root} produced no payloads for split='{cfg.data_split}'.")
+        k = min(cfg.n_payloads, len(payloads))
+        if k < 1:
+            raise ValueError("n_payloads must be >= 1.")
+        idx = rng.permutation(len(payloads))[:k]
+        payloads = [payloads[i] for i in idx]
+        return payloads, data_source_tag(cfg)
+    return generate_payloads(cfg.n_payloads, rng, unsafe_fraction=cfg.unsafe_fraction), "synthetic"
+
+
 # --------------------------------------------------------------------------------- trial
 def run_trial(cfg: TrialConfig) -> dict:
     """Run one synthetic trial; return per-method metrics and provenance-friendly summary."""
@@ -145,7 +199,7 @@ def run_trial(cfg: TrialConfig) -> dict:
         embedding_dim=cfg.embedding_dim,
         threshold=cfg.threshold,
     )
-    payloads = generate_payloads(cfg.n_payloads, rng, unsafe_fraction=cfg.unsafe_fraction)
+    payloads, data_source = load_payloads(cfg, rng)
     # Split calibration / evaluation.
     n_cal = max(1, cfg.n_payloads // 4)
     cal_payloads, eval_payloads = payloads[:n_cal], payloads[n_cal:]
@@ -205,7 +259,7 @@ def run_trial(cfg: TrialConfig) -> dict:
         "config": _config_to_dict(cfg),
         "n_eval": len(eval_payloads),
         "methods": per_method,
-        "data_source": "synthetic",
+        "data_source": data_source,
         "is_paper_result": False,
     }
 
@@ -254,6 +308,9 @@ def _config_to_dict(cfg: TrialConfig) -> dict:
         "f": cfg.f,
         "n_payloads": cfg.n_payloads,
         "seed": cfg.seed,
+        "data_root": cfg.data_root,
+        "benchmark": cfg.benchmark,
+        "data_split": cfg.data_split,
     }
 
 

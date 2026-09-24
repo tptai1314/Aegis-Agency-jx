@@ -15,7 +15,7 @@ from __future__ import annotations
 from dataclasses import replace
 from pathlib import Path
 
-from aegis_agency.experiments.harness import TrialConfig, run_trial
+from aegis_agency.experiments.harness import TrialConfig, data_source_tag, run_trial
 from aegis_agency.utils.io import write_csv, write_json
 from aegis_agency.utils.logging import get_logger
 from aegis_agency.utils.provenance import RunProvenance
@@ -64,8 +64,9 @@ def run_ablation(cfg: TrialConfig, output_dir: str | Path) -> dict:
     write_csv(out_dir / "ablation.csv", rows)
     prov = RunProvenance(
         run_id="ablation", stage="ablation", seed=cfg.seed,
-        config={"n_judges": cfg.n_judges}, data_source="synthetic",
+        config={"n_judges": cfg.n_judges, "data_root": cfg.data_root, "benchmark": cfg.benchmark},
+        data_source=data_source_tag(cfg),
     )
     write_json(out_dir / "ablation_provenance.json", prov.to_dict())
-    logger.info("Wrote %d ablation rows to %s (synthetic).", len(rows), out_dir / "ablation.csv")
+    logger.info("Wrote %d ablation rows to %s (%s).", len(rows), out_dir / "ablation.csv", data_source_tag(cfg))
     return {"rows": rows, "provenance": prov.to_dict()}
