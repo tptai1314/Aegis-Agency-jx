@@ -5,9 +5,35 @@ from pathlib import Path
 import numpy as np
 
 from aegis_agency.cli import _config_from_dict
+from aegis_agency.data.adapters import CsvBenchmarkAdapter
 from aegis_agency.experiments.harness import TrialConfig, load_payloads, run_trial
 
 CSV_HEADER = "id,content,label,group\n"
+
+
+def test_csv_adapter_is_byte_faithful_with_crlf_and_embedded_newlines(tmp_path: Path):
+    """Regression: without ``newline=""`` the csv module rewrites CRLF inside quoted fields,
+    silently changing multi-line payload text (2000/2000 rows of second_order, 194/299 benign)."""
+    import csv as _csv
+
+    dir_ = tmp_path / "formal"
+    dir_.mkdir(parents=True)
+    embedded = 'multi\r\nline "<tag>" payload'
+    # Write with the csv module and CRLF line terminators so the fixture is valid CSV
+    # (embedded quotes escaped) while the quoted field still carries CRLF inside it.
+    with (dir_ / "test.csv").open("w", encoding="utf-8", newline="") as fh:
+        writer = _csv.writer(fh, lineterminator="\r\n")
+        writer.writerow(["id", "content", "label", "group"])
+        writer.writerow(["a", "simple", 1, "g"])
+        writer.writerow(["b", embedded, 0, "g"])
+        writer.writerow(["c", "two\r\nlines", 1, "g"])
+
+    payloads = list(CsvBenchmarkAdapter(root=dir_, split="test").iter_payloads())
+    assert [p.payload_id for p in payloads] == ["a", "b", "c"]
+    assert payloads[0].content == "simple"
+    assert payloads[1].content == embedded          # CRLF preserved, not normalised to LF
+    assert payloads[2].content == "two\r\nlines"
+    assert [int(p.true_label) for p in payloads] == [1, 0, 1]
 
 
 def _write_benchmark(root: Path, n_rows: int = 40, n_unsafe: int = 20) -> Path:

@@ -24,6 +24,9 @@ dev = [
     "mypy>=1.8",
     "pandas>=2.0",
 ]
+vllm = [
+    "vllm>=0.6",
+]
 
 [project.scripts]
 aegis-agency = "aegis_agency.cli:main"
@@ -48,6 +51,6 @@ select = ["E", "F", "I", "W"]
 ignore = ["E501"]
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.13"
 ignore_missing_imports = true
 warn_unused_ignores = false

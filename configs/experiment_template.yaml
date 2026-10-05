@@ -27,8 +27,15 @@ data:
   benchmark: "formal"         # harmbench | advbench | dan | injecagent | formal | second_order | benign | benign_xstest
   split: test
 
-# Backbones to instantiate real judges with on EC2 (adapter-driven; not used in synthetic runs).
+# Judge backend. backend: synthetic (default, no LLM) or vllm (real judge on the GPU server).
+# backbones: list one + set n_judges x times for a homogeneous committee, or several for RQ4
+# diversity (assigned round-robin to judge slots). max_resident_engines: 1 runs one backbone
+# session at a time so a diverse committee fits a single GPU. isolation: false is the RQ2
+# un-isolated ablation. verdict_cache is shared across calibrate/evaluate/ablate to turn one
+# verdict per (payload, judge).
 judges:
-  backbones: [llama-3, qwen2.5, mistral, gpt-4o, claude-3.5]
-  homogeneous: false     # diverse committee (RQ4)
-  hardening: [secalign, struq]
+  backend: vllm
+  backbones: [meta-llama/Meta-Llama-3-8B-Instruct]
+  isolation: true
+  max_resident_engines: 0
+  verdict_cache: "outputs/cache/verdicts.jsonl"

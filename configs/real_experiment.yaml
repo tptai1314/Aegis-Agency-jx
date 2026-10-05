@@ -1,15 +1,17 @@
-# Real-data smoke-test configuration.
+# Real-data experiment configuration (GPU server).
 #
-# Loads REAL benchmark payloads from data/benchmarks/<benchmark>/test.csv into the existing
-# (still synthetic-verdict) harness. This is the step between the synthetic demo and the
-# full EC2 protocol: adjudication/metrics run on genuinely labelled jailbreak/injection
-# traffic, while verdicts come from SyntheticJudgePopulation until a real LLMJudgeAdapter is
-# implemented. Outputs are labelled with data_source="benchmark:<name>" and are NOT paper
-# results.
+# Loads REAL benchmark payloads from data/benchmarks/<benchmark>/test.csv and adjudicates
+# them with REAL vLLM judges (meta-llama/Meta-Llama-3-8B-Instruct, temperature 0) instead of
+# the synthetic verdict generator. Verdicts are cached deterministically per
+# (model, payload_id, judge_id) in judges.verdict_cache, shared across
+# calibrate/evaluate/ablate so each payload is prompted exactly once.
 #
-#   python scripts/run_experiment.py --config configs/real_experiment.yaml --stage calibrate --output outputs/real_formal
-#   python scripts/run_experiment.py --config configs/real_experiment.yaml --stage evaluate  --output outputs/real_formal
+#   python scripts/run_experiment.py --config configs/real_experiment.yaml --stage calibrate --output outputs/real_vllm
+#   python scripts/run_experiment.py --config configs/real_experiment.yaml --stage evaluate  --output outputs/real_vllm
+#   python scripts/run_experiment.py --config configs/real_experiment.yaml --stage ablate    --output outputs/real_vllm
 #
+# On a machine without vLLM the judges raise a clear install error; locally, drop the
+# `judges` section (or set backend: synthetic) to fall back to synthetic verdicts.
 experiment:
   n_judges: 7
   rules: [cmed, gmed, krum]
@@ -31,3 +33,10 @@ data:
   root: "data/benchmarks"
   benchmark: "formal"        # formal is class-balanced (700 unsafe / 700 benign)
   split: test
+
+judges:
+  backend: vllm
+  backbones: [meta-llama/Meta-Llama-3-8B-Instruct]
+  isolation: true             # RQ2 ablation: set false to measure the un-isolated pipeline
+  max_resident_engines: 0     # 0 = unlimited; 1 = one backbone session at a time (diverse on 1 GPU)
+  verdict_cache: "outputs/cache/real_vllm.jsonl"

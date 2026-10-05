@@ -1,0 +1,50 @@
+# Diverse-backbone committee configuration (RQ4) — GPU server, single GPU.
+#
+# Three open backbones are assigned to the seven judge slots round-robin
+# (llama, qwen, mistral, llama, qwen, mistral, llama) so the committee's honest errors are no
+# longer perfectly correlated. max_resident_engines: 1 makes the committee run ONE backbone
+# session at a time and release its engine afterwards, so three 8B models fit on a single ~40GB
+# GPU even though they would not fit together. Engines whose verdicts are all cached are never
+# loaded at all.
+#
+# Run exactly like the homogeneous configuration (same three stages, same order):
+#   python scripts/run_experiment.py --config configs/real_diverse.yaml --stage calibrate --output outputs/real_vllm_diverse
+#   python scripts/run_experiment.py --config configs/real_diverse.yaml --stage evaluate  --output outputs/real_vllm_diverse --seeds 0,1,2,3,4
+#   python scripts/run_experiment.py --config configs/real_diverse.yaml --stage ablate    --output outputs/real_vllm_diverse
+# and for the empirical quantities (r, gamma, rho and epsilon with isolation on/off):
+#   python scripts/measure_empirical.py --config configs/real_diverse.yaml --output outputs/measure_diverse --seeds 0,1,2,3,4
+#
+# Note on balance: n_judges=7 over three backbones gives llama 3 slots and qwen/mistral 2 each.
+# Keep n_judges identical to the homogeneous runs to compare like with like; if a perfectly
+# balanced committee is preferred, use n_judges: 6 (2+2+2) — and say so in the write-up.
+experiment:
+  n_judges: 7
+  rules: [cmed, gmed, krum]
+  margin: 0.25
+  radius: 0.08
+  correlation: 0.1
+  embedding_dim: 4
+  threshold: 0.5
+  escalate_band: 0.0
+  attack: compromise
+  f: 2
+  n_payloads: 1000
+  unsafe_fraction: 0.5
+  calibrate: true
+  target_orr: 0.05
+  seed: 7
+
+data:
+  root: "data/benchmarks"
+  benchmark: "formal"        # formal is class-balanced (700 unsafe / 700 benign)
+  split: test
+
+judges:
+  backend: vllm
+  backbones:
+    - meta-llama/Meta-Llama-3-8B-Instruct
+    - Qwen/Qwen2.5-7B-Instruct
+    - mistralai/Mistral-7B-Instruct-v0.3
+  max_resident_engines: 1     # one backbone session at a time -> fits a single 40GB GPU
+  isolation: true             # RQ2 ablation: set false to measure the un-isolated pipeline
+  verdict_cache: "outputs/cache/real_diverse.jsonl"

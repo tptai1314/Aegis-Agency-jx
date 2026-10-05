@@ -24,13 +24,14 @@ hardened LLM judges on real jailbreak/injection benchmarks.
 | Threshold + score calibration | `methods/calibration.py` | threshold selection (not conformal) |
 | Honest committee (Assumptions 1-2, rho) | `judges/synthetic_judges.py` | parametric verdict generator |
 | epsilon-isolation (Def. 1) | `judges/isolation.py`, `attacks/injection.py` | leakage model |
-| Attacks (Section 5.3) | `attacks/` | compromise / collusion / injection / adaptive |
+| Attacks (Section 5.3) | `attacks/` | compromise / collusion / injection / adaptive (surrogate) / adaptive_search (optimised against the rule) |
 | Metrics (Eq. 4-5, Section 10) | `metrics/metrics.py` | guarded rates + detection AUROC/F1 |
 | Theory checks (Lemma 1, Thm 1, Prop 3) | `metrics/theory.py` | C_alpha, integrity, variance |
 | Cost models (Section 9) | `metrics/cost.py` | token/latency |
 | Baselines (Section 10) | `baselines/` | no_defense, single_model, majority, autodefense |
 | External systems | `baselines/external_wrappers.py`, `data/adapters.py` | stubs w/ schemas |
 | Experiment loop (RQ1-RQ6) | `experiments/` | harness + runners |
+| Empirical r/gamma/rho/epsilon (RQ2/RQ4) | `experiments/measure_empirical.py` | measured from real judges; see `docs/reproducibility.md` |
 
 ## Design decisions and their justification
 - **Krum design-`f` vs attack-`f`.** Krum's neighbour count uses a *design* fault budget

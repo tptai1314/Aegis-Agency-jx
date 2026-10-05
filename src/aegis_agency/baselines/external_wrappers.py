@@ -1,16 +1,22 @@
-"""Adapter stubs for external systems that require real code, weights, or benchmarks.
+"""Adapters for external systems that require real code, weights, or benchmarks.
 
-These wrappers define the *exact* expected input/output schema so that, on EC2, a real
-implementation can be dropped in behind a stable interface. They never fabricate a result:
-calling :meth:`predict` on a stub raises ``NotImplementedError`` with a pointer to the setup
-required. A :class:`DummyExternalBaseline` is provided for pipeline/unit tests only and is
-clearly labelled as non-real.
+These wrappers define the *exact* expected input/output schema so that a real implementation can
+be dropped in behind a stable interface. They never fabricate a result: when the required
+configuration (a checkpoint id, a backbone) is missing, constructing the adapter raises
+``RuntimeError`` with a pointer to what must be supplied, and no verdict is invented.
 
 External systems referenced by the paper:
 * AutoDefense (Zeng et al., 2024)  -- multi-agent Coordinator system.
 * SecAlign   (Chen et al., 2025)   -- preference-optimised hardened model.
 * StruQ      (Chen et al., 2024)   -- structured-query hardened model.
 * JudgeDeceiver (Shi et al., 2024) -- optimisation-based judge injection.
+
+AutoDefense, SecAlign and StruQ now delegate to real, configurable **re-implementations** built
+on this repository's local vLLM judge machinery
+(:mod:`aegis_agency.baselines.llm_baselines`): the wrappers keep their historical names and the
+``ExternalJudgeAdapter`` interface, while the prompts, checkpoints and cache namespaces are
+documented in that module. A :class:`DummyExternalBaseline` is provided for pipeline/unit tests
+only and is clearly labelled as non-real.
 
 See docs/baseline_adapters.md and TODO_IMPLEMENTATION.md for setup instructions.
 """
@@ -19,11 +25,14 @@ from __future__ import annotations
 
 import abc
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
 from aegis_agency.data.schemas import Payload, Verdict
+
+if TYPE_CHECKING:  # pragma: no cover - typing only; the run-time import stays local below
+    from types import ModuleType
 
 
 @dataclass
@@ -52,35 +61,80 @@ class ExternalJudgeAdapter(abc.ABC):
         raise NotImplementedError
 
 
-class AutoDefenseAdapter(ExternalJudgeAdapter):
-    """Stub for the real AutoDefense system (external repo + LLM backbones required)."""
+def _llm_baselines() -> ModuleType:
+    """Import the re-implementation module lazily.
 
-    def predict(self, payload: Payload, rng: np.random.Generator) -> Verdict:  # pragma: no cover
-        raise NotImplementedError(
-            "AutoDefenseAdapter is a stub. To use the real system on EC2: clone the "
-            "AutoDefense repository, configure the Coordinator/analyzer/judge LLM backbones, "
-            "and implement predict() to return a Verdict. See docs/baseline_adapters.md."
-        )
+    Kept local so that importing :mod:`aegis_agency.baselines.external_wrappers` never drags in
+    the vLLM judge path eagerly (it is already lazy, but this keeps the dependency direction
+    explicit and impossible to turn into an import cycle).
+    """
+    from aegis_agency.baselines import llm_baselines as module
+
+    return module
+
+
+class AutoDefenseAdapter(ExternalJudgeAdapter):
+    """AutoDefense (Zeng et al., 2024) as analyzer -> judge(s) -> coordinator.
+
+    Delegates to :class:`aegis_agency.baselines.llm_baselines.AutoDefenseStyleBaseline`, which
+    runs the published AutoDefense prompts on the local vLLM engine and returns the coordinator's
+    verdict. Configure the role backbones (or a default one) through
+    ``ExternalBaselineConfig.model_path_or_endpoint`` / ``config.extra``; without any backbone the
+    constructor raises ``RuntimeError`` instead of guessing a model.
+    """
+
+    def __init__(self, config: ExternalBaselineConfig):
+        super().__init__(config)
+        self._impl = _llm_baselines().AutoDefenseStyleBaseline(config)
+
+    def predict(self, payload: Payload, rng: np.random.Generator) -> Verdict:
+        return self._impl.predict(payload, rng)
+
+    def describe(self) -> dict[str, Any]:
+        """Provenance of the delegated re-implementation (roles, sources, caveats)."""
+        return self._impl.describe()
 
 
 class SecAlignAdapter(ExternalJudgeAdapter):
-    """Stub for a real SecAlign-hardened judge (checkpoint required)."""
+    """SecAlign (Chen et al., 2025) as a single hardened checkpoint behind the local judge.
 
-    def predict(self, payload: Payload, rng: np.random.Generator) -> Verdict:  # pragma: no cover
-        raise NotImplementedError(
-            "SecAlignAdapter is a stub. Provide the SecAlign checkpoint path in "
-            "config.model_path_or_endpoint and implement predict(). See docs/baseline_adapters.md."
-        )
+    Delegates to :class:`aegis_agency.baselines.llm_baselines.SecAlignHardenedAdapter`. The
+    checkpoint must be supplied explicitly (``config.model_path_or_endpoint`` or
+    ``extra['checkpoint']``): the released third-party checkpoint id is never silently assumed, and
+    the prompt template is a re-implementation default that must be verified against the authors'
+    repository before any number is reported.
+    """
+
+    def __init__(self, config: ExternalBaselineConfig):
+        super().__init__(config)
+        self._impl = _llm_baselines().SecAlignHardenedAdapter(config)
+
+    def predict(self, payload: Payload, rng: np.random.Generator) -> Verdict:
+        return self._impl.predict(payload, rng)
+
+    def describe(self) -> dict[str, Any]:
+        """Provenance of the delegated re-implementation (checkpoint, sources, caveats)."""
+        return self._impl.describe()
 
 
 class StruQAdapter(ExternalJudgeAdapter):
-    """Stub for a real StruQ-hardened judge (checkpoint required)."""
+    """StruQ (Chen et al., 2024) as a single hardened checkpoint behind the local judge.
 
-    def predict(self, payload: Payload, rng: np.random.Generator) -> Verdict:  # pragma: no cover
-        raise NotImplementedError(
-            "StruQAdapter is a stub. Provide the StruQ checkpoint and implement predict(). "
-            "See docs/baseline_adapters.md."
-        )
+    Delegates to :class:`aegis_agency.baselines.llm_baselines.StruQHardenedAdapter`. As with
+    SecAlign, the checkpoint must be supplied explicitly and the structured-query template is a
+    re-implementation default to verify against the authors' repository.
+    """
+
+    def __init__(self, config: ExternalBaselineConfig):
+        super().__init__(config)
+        self._impl = _llm_baselines().StruQHardenedAdapter(config)
+
+    def predict(self, payload: Payload, rng: np.random.Generator) -> Verdict:
+        return self._impl.predict(payload, rng)
+
+    def describe(self) -> dict[str, Any]:
+        """Provenance of the delegated re-implementation (checkpoint, sources, caveats)."""
+        return self._impl.describe()
 
 
 class JudgeDeceiverAdapter(abc.ABC):
@@ -108,3 +162,4 @@ class DummyExternalBaseline(ExternalJudgeAdapter):
     def predict(self, payload: Payload, rng: np.random.Generator) -> Verdict:
         score = 0.9 if payload.true_label == 1 else 0.1
         return Verdict(decision=payload.true_label, score=score, judge_id=0, is_byzantine=False)
+

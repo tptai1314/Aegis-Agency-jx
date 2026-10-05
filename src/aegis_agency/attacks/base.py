@@ -17,9 +17,17 @@ from aegis_agency.data.schemas import Decision, Payload, Verdict
 
 
 class Attack(abc.ABC):
-    """Base class for adaptive attacks on the pipeline."""
+    """Base class for adaptive attacks on the pipeline.
+
+    ``per_rule`` marks an attack that optimises against the *specific* aggregation rule
+    (Section 5.3 capability iv). The harness then instantiates it once per pipeline, passing
+    that pipeline's ``rule`` and current decision ``threshold``; such an attack's constructor
+    must accept both keyword arguments. Attacks that leave it False are applied once per payload
+    exactly as before.
+    """
 
     name: str = "attack"
+    per_rule: bool = False
 
     @staticmethod
     def target_decision(payload: Payload) -> int:

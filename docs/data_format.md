@@ -28,6 +28,11 @@ Directory layout:
 Extra columns are preserved in `Payload.metadata`. See
 `examples/synthetic_data/example_benchmark.csv`.
 
+Payload `content` is read **byte-faithfully**: the adapter opens the CSV with `newline=""` so that
+CRLF inside quoted, multi-line fields is preserved exactly as released (several benchmarks rely on
+this — e.g. every row of `second_order` and most of `benign`). Never "normalise" line endings on
+the way in; the judge must see the released text.
+
 ## Benchmarks the paper uses (place manually on EC2)
 These require manual download / license acceptance / repository setup — **not automated
 here**. Prepare each as a CSV in the format above (or write a bespoke adapter subclassing

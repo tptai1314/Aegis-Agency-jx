@@ -1,0 +1,11 @@
+﻿experiment:
+  n_judges: 7
+  rules: [cmed, gmed, krum]
+  attack: compromise
+  f: 2
+  n_payloads: 200
+  seed: 7
+data:
+  root: "data/benchmarks"
+  benchmark: "formal"
+  split: test

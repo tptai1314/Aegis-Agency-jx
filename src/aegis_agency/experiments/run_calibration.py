@@ -13,11 +13,12 @@ import numpy as np
 
 from aegis_agency.experiments.harness import (
     TrialConfig,
+    build_honest_committee,
     build_pipelines,
     load_payloads,
+    prefetch_committee_verdicts,
     simulate_honest_committee,
 )
-from aegis_agency.judges.synthetic_judges import SyntheticJudgePopulation
 from aegis_agency.methods.calibration import calibrate_threshold
 from aegis_agency.utils.io import write_json
 from aegis_agency.utils.logging import get_logger
@@ -29,12 +30,15 @@ logger = get_logger(__name__)
 def run_calibration(cfg: TrialConfig, output_dir: str | Path) -> dict:
     """Calibrate thresholds for all methods on honest data."""
     rng = np.random.default_rng(cfg.seed)
-    pop = SyntheticJudgePopulation(
-        n_judges=cfg.n_judges, margin=cfg.margin, radius=cfg.radius,
-        correlation=cfg.correlation, embedding_dim=cfg.embedding_dim, threshold=cfg.threshold,
-    )
+    committee = build_honest_committee(cfg)
     payloads, data_source = load_payloads(cfg, rng)
     pipelines = build_pipelines(cfg)
+
+    # Real-judge backends collect their verdicts up front (one backbone session at a time,
+    # engines released afterwards when max_resident_engines == 1); synthetic is untouched.
+    new_calls = prefetch_committee_verdicts(committee, payloads, cfg)
+    if new_calls:
+        logger.info("Prefetched %d honest judge calls for %d payloads.", new_calls, len(payloads))
 
     thresholds: dict[str, float] = {}
     for name, pipe in pipelines.items():
@@ -42,7 +46,7 @@ def run_calibration(cfg: TrialConfig, output_dir: str | Path) -> dict:
             continue
         scores, labels = [], []
         for p in payloads:
-            honest = simulate_honest_committee(p, pop, rng)
+            honest = simulate_honest_committee(p, committee, rng)
             res = pipe.decide(honest, p, rng)
             scores.append(res.aggregate_score)
             labels.append(p.true_label)
@@ -55,6 +59,10 @@ def run_calibration(cfg: TrialConfig, output_dir: str | Path) -> dict:
         config={
             "n_judges": cfg.n_judges, "target_orr": cfg.target_orr,
             "data_root": cfg.data_root, "benchmark": cfg.benchmark, "data_split": cfg.data_split,
+            "judge_backend": cfg.judge_backend, "models": list(cfg.models),
+            "isolation": cfg.isolation, "max_resident_engines": cfg.max_resident_engines,
+            "temperature": cfg.temperature, "max_tokens": cfg.max_tokens,
+            "model_revision": cfg.model_revision or "<unpinned>",
         },
         data_source=data_source,
     )
